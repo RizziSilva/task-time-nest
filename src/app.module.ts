@@ -6,7 +6,7 @@ import { TypeOrmConfigService } from '@modules';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: './environment/env.local',
+      envFilePath: './environment/env.development',
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
