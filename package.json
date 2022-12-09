@@ -23,15 +23,15 @@
   },
   "dependencies": {
     "@nestjs/common": "9.2.1",
-    "@nestjs/config": "^2.2.0",
+    "@nestjs/config": "2.2.0",
     "@nestjs/core": "9.2.1",
-    "@nestjs/platform-express": "^9.2.1",
-    "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/platform-express": "9.2.1",
+    "@nestjs/typeorm": "9.0.1",
     "cross-env": "7.0.3",
-    "mysql2": "^2.3.3",
+    "mysql2": "2.3.3",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.6.0",
-    "source-map-support": "^0.5.21",
-    "typeorm": "^0.3.11"
+    "source-map-support": "0.5.21",
+    "typeorm": "0.3.11"
   }
 }
