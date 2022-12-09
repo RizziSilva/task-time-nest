@@ -11,6 +11,9 @@
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "paths": {
+      "@modules": ["./src/modules"]
+    }
   }
 }
