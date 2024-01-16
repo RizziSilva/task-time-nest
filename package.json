@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "create-migration": "typeorm-ts-node-commonjs migration:create ./src/migrations/%npm_config_name%",
+    "run-migrations": "cross-env NODE_ENV=development && typeorm-ts-node-commonjs migration:run -d ./typeOrm.config.ts",
+    "revert-migrations": "cross-env NODE_ENV=development && typeorm-ts-node-commonjs migration:revert -d ./typeOrm.config.ts",
     "dev": "cross-env NODE_ENV=development && nest start --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +21,8 @@
   },
   "homepage": "https://github.com/RizziSilva/task-time-nest#readme",
   "devDependencies": {
-    "@types/node": "^18.11.10",
+    "@types/node": "18.11.10",
+    "ts-node": "10.9.2",
     "typescript": "4.9.3"
   },
   "dependencies": {
@@ -28,6 +32,7 @@
     "@nestjs/platform-express": "9.2.1",
     "@nestjs/typeorm": "9.0.1",
     "cross-env": "7.0.3",
+    "dotenv": "^16.3.1",
     "mysql2": "2.3.3",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.6.0",
