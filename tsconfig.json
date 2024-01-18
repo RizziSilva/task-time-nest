@@ -13,7 +13,8 @@
     "incremental": true,
     "baseUrl": "./",
     "paths": {
-      "@modules": ["./src/modules"]
+      "@modules": ["./src/modules"],
+      "@entities": ["./src/entities"],
     }
   }
 }
