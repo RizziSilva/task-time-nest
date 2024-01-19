@@ -4,10 +4,11 @@ import { UserController } from '@controllers';
 import { UserService } from '@services';
 import { UserMapper } from '@mappers';
 import { User } from '@entities';
+import { UserCreateValidator } from '@validators';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UserController],
-  providers: [UserService, UserMapper],
+  providers: [UserService, UserMapper, UserCreateValidator],
 })
 export class UserModule {}
