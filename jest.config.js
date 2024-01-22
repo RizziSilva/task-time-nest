@@ -1,0 +1,16 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
+
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '@modules': '<rootDir>/src/modules',
+    '@entities': '<rootDir>/src/entities',
+    '@dtos': '<rootDir>/src/dto',
+    '@controllers': '<rootDir>/src/controllers',
+    '@services': '<rootDir>/src/services',
+    '@mappers': '<rootDir>/src/mappers',
+    '@validators': '<rootDir>/src/validators',
+    '@constants': '<rootDir>/src/constants',
+  },
+};
