@@ -15,6 +15,12 @@
     "paths": {
       "@modules": ["./src/modules"],
       "@entities": ["./src/entities"],
+      "@dtos": ["./src/dto"],
+      "@controllers": ["./src/controllers"],
+      "@services": ["./src/services"],
+      "@mappers": ["./src/mappers"],
+      "@validators": ["./src/validators"],
+      "@constants": ["./src/constants"]
     }
   }
 }
