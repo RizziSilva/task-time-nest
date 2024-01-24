@@ -1,1 +1,1 @@
-export { UserMapper } from './user.mapper';
+export { UserMapper } from './user/user.mapper';

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { UserCreateRequest, UserCreateResponse } from '@dtos';
 import { User } from '@entities';
+import { DATE_TIME_FORMAT } from '@constants';
 
 @Injectable()
 export class UserMapper {
@@ -11,7 +12,7 @@ export class UserMapper {
     user.name = request.name;
     user.password = request.password;
     user.email = request.email;
-    user.updated_at = dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss');
+    user.updatedAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
 
     return user;
   }
@@ -22,8 +23,8 @@ export class UserMapper {
     response.email = entity.email;
     response.name = entity.name;
     response.id = entity.id;
-    response.created_at = entity.created_at;
-    response.updated_at = entity.created_at;
+    response.createdAt = entity.createdAt;
+    response.updatedAt = entity.createdAt;
 
     return response;
   }

@@ -54,11 +54,59 @@ describe('UserCreateValidator Tests', () => {
       }).toThrow(httpError);
     });
 
-    it('Should return invalid password message', () => {
+    it('Should return invalid password message for password without number', () => {
       const request: UserCreateRequest = new UserCreateRequest();
       request.name = 'Valid Name';
       request.email = 'valid.email@email.com';
-      request.password = 'invalidpassword';
+      request.password = 'Invalid@pass';
+
+      const httpError: HttpException = new HttpException(
+        { status: HttpStatus.BAD_REQUEST, error: INVALID_PASSWORD_MESSAGE },
+        HttpStatus.BAD_REQUEST,
+      );
+
+      expect(() => {
+        validator.validateCreateUserRequest(request);
+      }).toThrow(httpError);
+    });
+
+    it('Should return invalid password message for password without special caracter', () => {
+      const request: UserCreateRequest = new UserCreateRequest();
+      request.name = 'Valid Name';
+      request.email = 'valid.email@email.com';
+      request.password = 'Invalidpass123';
+
+      const httpError: HttpException = new HttpException(
+        { status: HttpStatus.BAD_REQUEST, error: INVALID_PASSWORD_MESSAGE },
+        HttpStatus.BAD_REQUEST,
+      );
+
+      expect(() => {
+        validator.validateCreateUserRequest(request);
+      }).toThrow(httpError);
+    });
+
+    it('Should return invalid password message for password without uppercase letter', () => {
+      const request: UserCreateRequest = new UserCreateRequest();
+      request.name = 'Valid Name';
+      request.email = 'valid.email@email.com';
+      request.password = 'invalidpass@123';
+
+      const httpError: HttpException = new HttpException(
+        { status: HttpStatus.BAD_REQUEST, error: INVALID_PASSWORD_MESSAGE },
+        HttpStatus.BAD_REQUEST,
+      );
+
+      expect(() => {
+        validator.validateCreateUserRequest(request);
+      }).toThrow(httpError);
+    });
+
+    it('Should return invalid password message for password without lowercase letter', () => {
+      const request: UserCreateRequest = new UserCreateRequest();
+      request.name = 'Valid Name';
+      request.email = 'valid.email@email.com';
+      request.password = 'INVALID@PASS123';
 
       const httpError: HttpException = new HttpException(
         { status: HttpStatus.BAD_REQUEST, error: INVALID_PASSWORD_MESSAGE },
