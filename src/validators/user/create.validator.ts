@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserCreateRequest } from '@dtos';
+import { UserCreateRequestDto } from '@dtos';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
@@ -35,8 +35,8 @@ export class UserCreateValidator {
     return isValid;
   }
 
-  validateCreateUserRequest(request: UserCreateRequest): void {
-    const { name, password, email }: UserCreateRequest = request;
+  validateCreateUserRequest(request: UserCreateRequestDto): void {
+    const { name, password, email }: UserCreateRequestDto = request;
     const hasValidName: boolean = name && name.split(' ').length >= 2;
     const hasValidPassword: boolean = this.getIsPasswordValid(password);
     const hasValidEmail: boolean = this.getIsValidEmail(email);

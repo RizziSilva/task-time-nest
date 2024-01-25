@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { UserCreateRequest, UserCreateResponse } from '@dtos';
+import { UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
 import { User } from '@entities';
 import { DATE_TIME_FORMAT } from '@constants';
 import { UserMapper } from './user.mapper';
@@ -21,7 +21,7 @@ describe('UserMapper Test', () => {
 
   describe('fromCreateRequestToUser', () => {
     it('Convert user create request to user entity', () => {
-      const request: UserCreateRequest = new UserCreateRequest();
+      const request: UserCreateRequestDto = new UserCreateRequestDto();
       request.email = 'some@email.com';
       request.password = 'some@Pass123';
       request.name = 'Some Name';
@@ -32,7 +32,7 @@ describe('UserMapper Test', () => {
       expected.password = request.password;
       expected.updatedAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
 
-      expect(userMapper.fromCreateRequestToUser(request)).toEqual(expected);
+      expect(userMapper.fromCreateRequestToUser(request, request.password)).toEqual(expected);
     });
   });
 
@@ -49,7 +49,7 @@ describe('UserMapper Test', () => {
       user.updatedAt = dateMock;
       user.id = randomInt;
 
-      const expected: UserCreateResponse = new UserCreateResponse();
+      const expected: UserCreateResponseDto = new UserCreateResponseDto();
       expected.email = user.email;
       expected.name = user.name;
       expected.id = user.id;
