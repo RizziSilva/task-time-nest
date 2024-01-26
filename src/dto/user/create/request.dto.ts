@@ -1,4 +1,4 @@
-export class UserCreateRequest {
+export class UserCreateRequestDto {
   name: string;
   email: string;
   password: string;
