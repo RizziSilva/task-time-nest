@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { UserCreateRequestDto, UserCreateResponseDto, UserLoginResponseDto } from '@dtos';
+import { UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
 import { User } from '@entities';
 import { DATE_TIME_FORMAT } from '@constants';
 
@@ -25,15 +25,6 @@ export class UserMapper {
     response.id = entity.id;
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.createdAt;
-
-    return response;
-  }
-
-  fromUserToLoginResponse(entity: User): UserLoginResponseDto {
-    const response: UserLoginResponseDto = new UserLoginResponseDto();
-
-    response.token = '';
-    response.refreshToken = '';
 
     return response;
   }

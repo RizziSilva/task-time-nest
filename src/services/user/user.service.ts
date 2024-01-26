@@ -2,16 +2,10 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash, compare } from 'bcrypt';
-import {
-  UserCreateRequestDto,
-  UserCreateResponseDto,
-  UserLoginRequestDto,
-  UserLoginResponseDto,
-} from '@dtos';
+import { UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
 import { UserMapper } from '@mappers';
 import { User } from '@entities';
 import { UserCreateValidator } from '@validators';
-import { UNAUTHORIZED_LOGIN } from '@constants';
 
 @Injectable()
 export class UserService {
@@ -32,34 +26,7 @@ export class UserService {
     return response;
   }
 
-  async login(request: UserLoginRequestDto): Promise<UserLoginResponseDto> {
-    const user: User = await this.findOneByEmail(request.email);
-
-    if (!user) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const isCorrectUserPassword: boolean = await this.comparePasswords(
-      user.password,
-      request.password,
-    );
-
-    if (!isCorrectUserPassword) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const response: UserLoginResponseDto = this.userMapper.fromUserToLoginResponse(user);
-
-    return response;
-  }
-
-  private async findOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<User> {
     return await this.userRepository.findOneBy({
       email: email,
     });
@@ -67,9 +34,5 @@ export class UserService {
 
   private async createHasFromPassword(password: string): Promise<string> {
     return await hash(password, 10);
-  }
-
-  private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {
-    return await compare(requestPassword, userPassword);
   }
 }
