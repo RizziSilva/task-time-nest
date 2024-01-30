@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
-import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
+import { AuthLoginResponseDto } from '@dtos';
 import { UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
@@ -10,8 +10,8 @@ import { UserService } from '../user/user.service';
 export class AuthService {
   constructor(private userService: UserService, private authMapper: AuthMapper) {}
 
-  async login(request: AuthLoginRequestDto): Promise<AuthLoginResponseDto> {
-    const user: User = await this.userService.findOneByEmail(request.email);
+  async login(email: string, password: string): Promise<AuthLoginResponseDto> {
+    const user: User = await this.userService.findOneByEmail(email);
 
     if (!user) {
       throw new HttpException(
@@ -20,10 +20,7 @@ export class AuthService {
       );
     }
 
-    const isCorrectUserPassword: boolean = await this.comparePasswords(
-      user.password,
-      request.password,
-    );
+    const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
     if (!isCorrectUserPassword) {
       throw new HttpException(
