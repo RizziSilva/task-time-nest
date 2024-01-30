@@ -1,16 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import bcrypt from 'bcrypt';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import bcrypt from 'bcrypt';
+import { UNAUTHORIZED_LOGIN } from '@constants';
+import { UserCreateValidator } from '@validators';
 import { AuthController } from '@controllers';
 import { AuthMapper, UserMapper } from '@mappers';
 import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
 import { User } from '@entities';
-import { UserModule } from '@modules';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { UserCreateValidator } from '@validators';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { UNAUTHORIZED_LOGIN } from '@constants';
 
 describe('AuthService tests', () => {
   let authService: AuthService;
