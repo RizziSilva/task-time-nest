@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService, UserModule } from '@modules';
+import { TypeOrmConfigService, UserModule, AuthModule } from '@modules';
 
 @Module({
   imports: [
@@ -10,9 +10,10 @@ import { TypeOrmConfigService, UserModule } from '@modules';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      useClass: TypeOrmConfigService,
+      useClass: TypeOrmConfigService
     }),
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

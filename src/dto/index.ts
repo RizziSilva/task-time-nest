@@ -1,6 +1,2 @@
-export {
-  UserCreateRequestDto,
-  UserCreateResponseDto,
-  UserLoginRequestDto,
-  UserLoginResponseDto,
-} from './user';
+export { UserCreateRequestDto, UserCreateResponseDto } from './user';
+export { AuthLoginRequestDto, AuthLoginResponseDto } from './auth';
