@@ -15,8 +15,8 @@ describe('AuthMapper Tests', () => {
       user.email = 'some.email@email.com';
 
       const expected: AuthLoginResponseDto = new AuthLoginResponseDto();
-      expected.refreshToken = user.email;
-      expected.token = user.email;
+      expected.email = user.email;
+      expected.name = user.email;
 
       const result: AuthLoginResponseDto = authMapper.fromUserToAuthLoginResponse(user);
 

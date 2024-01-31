@@ -7,8 +7,8 @@ export class AuthMapper {
   fromUserToAuthLoginResponse(entity: User) {
     const response: AuthLoginResponseDto = new AuthLoginResponseDto();
 
-    response.token = `${entity.email}`;
-    response.refreshToken = `${entity.email}`;
+    response.email = `${entity.email}`;
+    response.name = `${entity.name}`;
 
     return response;
   }

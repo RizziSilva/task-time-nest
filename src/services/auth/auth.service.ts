@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
 import { AuthLoginResponseDto } from '@dtos';
@@ -8,9 +9,13 @@ import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private authMapper: AuthMapper) {}
+  constructor(
+    private userService: UserService,
+    private authMapper: AuthMapper,
+    private jwtService: JwtService,
+  ) {}
 
-  async login(email: string, password: string): Promise<AuthLoginResponseDto> {
+  async validateUser(email: string, password: string): Promise<AuthLoginResponseDto> {
     const user: User = await this.userService.findOneByEmail(email);
 
     if (!user) {
@@ -32,6 +37,12 @@ export class AuthService {
     const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
     return response;
+  }
+
+  async login(user: AuthLoginResponseDto) {
+    const accessToken: string = await this.jwtService.signAsync(user);
+
+    return accessToken;
   }
 
   private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {

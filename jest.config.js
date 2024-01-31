@@ -13,5 +13,7 @@ module.exports = {
     '@mappers': '<rootDir>/src/mappers',
     '@validators': '<rootDir>/src/validators',
     '@constants': '<rootDir>/src/constants',
+    '@decorators': '<rootDir>/src/decorators',
+    '@guards': '<rootDir>/src/guards',
   },
 };
