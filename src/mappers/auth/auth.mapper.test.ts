@@ -13,10 +13,11 @@ describe('AuthMapper Tests', () => {
     it('creates auth response from user', () => {
       const user: User = new User();
       user.email = 'some.email@email.com';
+      user.name = 'Some Name';
 
       const expected: AuthLoginResponseDto = new AuthLoginResponseDto();
       expected.email = user.email;
-      expected.name = user.email;
+      expected.name = user.name;
 
       const result: AuthLoginResponseDto = authMapper.fromUserToAuthLoginResponse(user);
 
