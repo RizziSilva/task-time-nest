@@ -20,7 +20,9 @@
       "@services": ["./src/services"],
       "@mappers": ["./src/mappers"],
       "@validators": ["./src/validators"],
-      "@constants": ["./src/constants"]
+      "@constants": ["./src/constants"],
+      "@decorators": ["./src/decorators"],
+      "@guards": ["./src/guards"]
     }
   }
 }

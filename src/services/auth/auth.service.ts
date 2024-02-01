@@ -1,17 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
-import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
+import { AuthLoginResponseDto } from '@dtos';
 import { UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private authMapper: AuthMapper) {}
+  constructor(
+    private userService: UserService,
+    private authMapper: AuthMapper,
+    private jwtService: JwtService,
+  ) {}
 
-  async login(request: AuthLoginRequestDto): Promise<AuthLoginResponseDto> {
-    const user: User = await this.userService.findOneByEmail(request.email);
+  async validateUser(email: string, password: string): Promise<AuthLoginResponseDto> {
+    const user: User = await this.userService.findOneByEmail(email);
 
     if (!user) {
       throw new HttpException(
@@ -20,10 +25,7 @@ export class AuthService {
       );
     }
 
-    const isCorrectUserPassword: boolean = await this.comparePasswords(
-      user.password,
-      request.password,
-    );
+    const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
     if (!isCorrectUserPassword) {
       throw new HttpException(
@@ -35,6 +37,12 @@ export class AuthService {
     const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
     return response;
+  }
+
+  async login(user: AuthLoginResponseDto) {
+    const accessToken: string = await this.jwtService.signAsync(user);
+
+    return accessToken;
   }
 
   private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {

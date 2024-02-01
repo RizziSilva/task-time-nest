@@ -1,4 +1,4 @@
 export class AuthLoginResponseDto {
-  token: string;
-  refreshToken: string;
+  name: string;
+  email: string;
 }

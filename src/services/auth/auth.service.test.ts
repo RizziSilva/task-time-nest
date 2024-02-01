@@ -10,11 +10,13 @@ import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
 import { User } from '@entities';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AuthService tests', () => {
   let authService: AuthService;
   let authMapper: AuthMapper;
   let userService: UserService;
+  let jwtService: JwtService;
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -26,12 +28,14 @@ describe('AuthService tests', () => {
         AuthMapper,
         UserCreateValidator,
         UserMapper,
+        JwtService,
       ],
     }).compile();
 
     authService = ref.get<AuthService>(AuthService);
     authMapper = ref.get<AuthMapper>(AuthMapper);
     userService = ref.get<UserService>(UserService);
+    jwtService = ref.get<JwtService>(JwtService);
 
     jest.resetAllMocks();
   });
@@ -42,11 +46,14 @@ describe('AuthService tests', () => {
       const user: User = new User();
       const response: AuthLoginResponseDto = new AuthLoginResponseDto();
 
-      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(user);
+      jest.spyOn(userService, 'findOneByEmail').mockImplementationOnce(() => Promise.resolve(user));
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse').mockImplementationOnce(() => response);
 
-      const result: AuthLoginResponseDto = await authService.login(request);
+      const result: AuthLoginResponseDto = await authService.validateUser(
+        request.email,
+        request.password,
+      );
 
       expect(result).toEqual(response);
       expect(userService.findOneByEmail).toHaveBeenCalled();
@@ -59,7 +66,7 @@ describe('AuthService tests', () => {
     it('Login with error using wrong email', async () => {
       const request: AuthLoginRequestDto = new AuthLoginRequestDto();
 
-      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(null);
+      jest.spyOn(userService, 'findOneByEmail').mockImplementationOnce(() => Promise.resolve(null));
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse');
       jest.spyOn(bcrypt, 'compare');
 
@@ -68,7 +75,9 @@ describe('AuthService tests', () => {
         HttpStatus.UNAUTHORIZED,
       );
 
-      await expect(authService.login(request)).rejects.toThrow(httpError);
+      await expect(authService.validateUser(request.email, request.password)).rejects.toThrow(
+        httpError,
+      );
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(authMapper.fromUserToAuthLoginResponse).not.toHaveBeenCalled();
@@ -79,7 +88,7 @@ describe('AuthService tests', () => {
       const request: AuthLoginRequestDto = new AuthLoginRequestDto();
       const user: User = new User();
 
-      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(user);
+      jest.spyOn(userService, 'findOneByEmail').mockImplementationOnce(() => Promise.resolve(user));
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse');
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(false));
 
@@ -88,7 +97,9 @@ describe('AuthService tests', () => {
         HttpStatus.UNAUTHORIZED,
       );
 
-      await expect(authService.login(request)).rejects.toThrow(httpError);
+      await expect(authService.validateUser(request.email, request.password)).rejects.toThrow(
+        httpError,
+      );
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(bcrypt.compare).toHaveBeenCalled();
