@@ -14,11 +14,4 @@ export class AuthController {
   async login(@RequestUser() user: AuthLoginResponseDto): Promise<string> {
     return await this.authService.login(user);
   }
-
-  @UseGuards(UserJwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Post('/test')
-  async test(@RequestUser() user: AuthLoginResponseDto): Promise<string> {
-    return;
-  }
 }
