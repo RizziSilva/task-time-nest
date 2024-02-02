@@ -19,4 +19,7 @@ export class User {
 
   @Column({ name: 'updated_at' })
   updatedAt: string;
+
+  @Column({ name: 'refresh_token' })
+  refreshToken: string;
 }
