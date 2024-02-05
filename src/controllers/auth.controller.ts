@@ -2,7 +2,7 @@ import { Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/commo
 import { RequestUser } from '@decorators';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService } from '@services';
-import { UserAuthGuard } from '@guards';
+import { UserAuthGuard, UserJwtAuthGuard } from '@guards';
 
 @Controller('auth')
 export class AuthController {
@@ -13,5 +13,12 @@ export class AuthController {
   @Post('/login')
   async login(@RequestUser() user: AuthLoginResponseDto): Promise<TokensDto> {
     return await this.authService.login(user);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/test')
+  async test(@RequestUser() user: AuthLoginResponseDto): Promise<void> {
+    return null;
   }
 }

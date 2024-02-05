@@ -19,22 +19,16 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<AuthLoginResponseDto> {
     const user: User = await this.userService.findOneByEmail(email);
+    const unauthorizedLoginError: HttpException = new HttpException(
+      { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
+      HttpStatus.UNAUTHORIZED,
+    );
 
-    if (!user) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
+    if (!user) throw unauthorizedLoginError;
 
     const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
-    if (!isCorrectUserPassword) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
+    if (!isCorrectUserPassword) throw unauthorizedLoginError;
 
     const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 

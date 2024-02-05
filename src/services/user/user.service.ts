@@ -28,7 +28,13 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<User> {
     return await this.userRepository.findOneBy({
-      email: email,
+      email,
+    });
+  }
+
+  async findOneByRefreshToken(refreshToken: string): Promise<User> {
+    return await this.userRepository.findOneBy({
+      refreshToken,
     });
   }
 
