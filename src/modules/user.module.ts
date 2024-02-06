@@ -10,6 +10,6 @@ import { UserCreateValidator } from '@validators';
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UserController],
   providers: [UserService, UserMapper, UserCreateValidator],
-  exports: [UserService],
+  exports: [UserService, UserMapper],
 })
 export class UserModule {}

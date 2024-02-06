@@ -36,8 +36,11 @@ export class AuthService {
   }
 
   async login(user: AuthLoginResponseDto): Promise<TokensDto> {
+    console.log('login');
     const tokens: TokensDto = new TokensDto();
-    const accessToken: string = await this.jwtService.signAsync(user);
+    const accessToken: string = await this.jwtService.signAsync(user, {
+      secret: this.configService.get<string>('JWT_KEY'),
+    });
     const refreshToken: string = await this.jwtService.signAsync(user, {
       secret: this.configService.get<string>('JWT_KEY_REFRESH'),
     });

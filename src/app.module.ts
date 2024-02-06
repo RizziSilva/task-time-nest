@@ -10,7 +10,7 @@ import { TypeOrmConfigService, UserModule, AuthModule } from '@modules';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      useClass: TypeOrmConfigService
+      useClass: TypeOrmConfigService,
     }),
     UserModule,
     AuthModule,
