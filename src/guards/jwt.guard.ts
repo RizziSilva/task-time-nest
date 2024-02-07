@@ -32,7 +32,6 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     try {
       await this.handleTokens(request, response, tokens);
     } catch (error) {
-      console.error('Erro na validação de tokens', error);
       throw new UnauthorizedException();
     }
 
@@ -63,7 +62,6 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
 
       return true;
     } catch (error) {
-      console.log('handleAccessToken', error);
       const isValid: boolean = await this.handleRefreshToken(
         request,
         response,

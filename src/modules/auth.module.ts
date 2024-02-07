@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from '@controllers';
 import { AuthService, JwtStrategy, LocalStrategy } from '@services';
 import { AuthMapper } from '@mappers';
+import { ACCESS_TOKEN_EXPIRATION_TIME } from '@constants';
 import { UserModule } from './user.module';
 
 @Module({
@@ -11,7 +12,7 @@ import { UserModule } from './user.module';
     UserModule,
     PassportModule,
     JwtModule.register({
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: ACCESS_TOKEN_EXPIRATION_TIME },
     }),
   ],
   controllers: [AuthController],

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
-import { UNAUTHORIZED_LOGIN } from '@constants';
+import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
 
@@ -38,12 +38,19 @@ export class AuthService {
   async login(user: AuthLoginResponseDto): Promise<TokensDto> {
     console.log('login');
     const tokens: TokensDto = new TokensDto();
-    const accessToken: string = await this.jwtService.signAsync(user, {
-      secret: this.configService.get<string>('JWT_KEY'),
-    });
-    const refreshToken: string = await this.jwtService.signAsync(user, {
-      secret: this.configService.get<string>('JWT_KEY_REFRESH'),
-    });
+    const accessToken: string = await this.jwtService.signAsync(
+      { user },
+      {
+        secret: this.configService.get<string>('JWT_KEY'),
+      },
+    );
+    const refreshToken: string = await this.jwtService.signAsync(
+      { user },
+      {
+        secret: this.configService.get<string>('JWT_KEY_REFRESH'),
+        expiresIn: REFRESH_TOKEN_EXPIRATION_TIME,
+      },
+    );
 
     tokens.refresh_token = refreshToken;
     tokens.access_token = accessToken;
