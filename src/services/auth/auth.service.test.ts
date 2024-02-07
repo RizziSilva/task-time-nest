@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { UNAUTHORIZED_LOGIN } from '@constants';
 import { UserCreateValidator } from '@validators';
@@ -10,7 +12,6 @@ import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
 import { User } from '@entities';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
 
 describe('AuthService tests', () => {
   let authService: AuthService;
@@ -29,6 +30,7 @@ describe('AuthService tests', () => {
         UserCreateValidator,
         UserMapper,
         JwtService,
+        ConfigService,
       ],
     }).compile();
 
