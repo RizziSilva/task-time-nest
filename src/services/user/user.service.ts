@@ -1,7 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { hash, compare } from 'bcrypt';
+import { hash } from 'bcrypt';
 import { UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
 import { UserMapper } from '@mappers';
 import { User } from '@entities';
@@ -28,8 +28,18 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<User> {
     return await this.userRepository.findOneBy({
-      email: email,
+      email,
     });
+  }
+
+  async findOneByRefreshToken(refreshToken: string): Promise<User> {
+    return await this.userRepository.findOneBy({
+      refreshToken,
+    });
+  }
+
+  async updateRefreshToken(email: string, refreshToken: string): Promise<void> {
+    await this.userRepository.update({ email }, { refreshToken });
   }
 
   private async createHasFromPassword(password: string): Promise<string> {

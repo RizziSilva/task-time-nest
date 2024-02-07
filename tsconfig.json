@@ -22,7 +22,8 @@
       "@validators": ["./src/validators"],
       "@constants": ["./src/constants"],
       "@decorators": ["./src/decorators"],
-      "@guards": ["./src/guards"]
+      "@guards": ["./src/guards"],
+      "@exceptions": ["./src/exceptions"]
     }
   }
 }
