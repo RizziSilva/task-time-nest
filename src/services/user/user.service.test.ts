@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
-import { UserCreateValidator } from '@validators';
+import { UserValidator } from '@validators';
 import { User } from '@entities';
 import { UserMapper } from '@mappers';
 import { UserController } from '@controllers';
@@ -13,7 +13,7 @@ describe('UserService Tests', () => {
   let userService: UserService;
   let userRepository: Repository<User>;
   let userMapper: UserMapper;
-  let userValidator: UserCreateValidator;
+  let userValidator: UserValidator;
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -21,7 +21,7 @@ describe('UserService Tests', () => {
       providers: [
         UserService,
         UserMapper,
-        UserCreateValidator,
+        UserValidator,
         { provide: getRepositoryToken(User), useValue: { save: jest.fn() } },
       ],
     }).compile();
@@ -29,7 +29,7 @@ describe('UserService Tests', () => {
     userService = ref.get<UserService>(UserService);
     userRepository = ref.get<Repository<User>>(getRepositoryToken(User));
     userMapper = ref.get<UserMapper>(UserMapper);
-    userValidator = ref.get<UserCreateValidator>(UserCreateValidator);
+    userValidator = ref.get<UserValidator>(UserValidator);
   });
 
   describe('create Tests', () => {

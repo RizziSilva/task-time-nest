@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { UNAUTHORIZED_LOGIN } from '@constants';
-import { UserCreateValidator } from '@validators';
+import { UserValidator } from '@validators';
 import { AuthController } from '@controllers';
 import { AuthMapper, UserMapper } from '@mappers';
 import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
@@ -27,7 +27,7 @@ describe('AuthService tests', () => {
         UserService,
         AuthService,
         AuthMapper,
-        UserCreateValidator,
+        UserValidator,
         UserMapper,
         JwtService,
         ConfigService,

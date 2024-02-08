@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UserCreateRequestDto } from '@dtos';
 import { INVALID_EMAIL_MESSAGE, INVALID_NAME_MESSAGE, INVALID_PASSWORD_MESSAGE } from '@constants';
-import { UserCreateValidator } from './create.validator';
+import { UserValidator } from './create.validator';
 
-describe('UserCreateValidator Tests', () => {
-  let validator: UserCreateValidator;
+describe('UserValidator Tests', () => {
+  let validator: UserValidator;
 
   beforeEach(() => {
-    validator = new UserCreateValidator();
+    validator = new UserValidator();
   });
 
   describe('validateCreateUserRequest', () => {

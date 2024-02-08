@@ -1,45 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserCreateRequestDto } from '@dtos';
-import {
-  PASSWORD_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
-  SPECIAL_CHARACTERS_REGEX,
-  LETTER_REGEXP,
-  UPPERCASE_LETTER_REGEXP,
-  DIGIT_REGEXP,
-  EMAIL_REGEXP,
-  INVALID_NAME_MESSAGE,
-  INVALID_EMAIL_MESSAGE,
-  INVALID_PASSWORD_MESSAGE,
-} from '@constants';
+import { INVALID_NAME_MESSAGE, INVALID_EMAIL_MESSAGE, INVALID_PASSWORD_MESSAGE } from '@constants';
+import { getIsPasswordValid, getIsValidEmail } from '@utils';
+import { UserUpdateRequestDto } from 'src/dto/user';
+import { UpdateException } from '@exceptions';
 
 @Injectable()
-export class UserCreateValidator {
-  private getIsValidEmail(email: string): boolean {
-    return EMAIL_REGEXP.test(email);
-  }
-
-  private getIsPasswordValid(password: string): boolean {
-    if (!password) return false;
-
-    const passwordLength: number = password.length;
-    const hasCorrectLength: boolean =
-      passwordLength <= PASSWORD_MAX_LENGTH && passwordLength >= PASSWORD_MIN_LENGTH;
-    const hasSpecialCharacters = SPECIAL_CHARACTERS_REGEX.test(password);
-    const hasLetter = LETTER_REGEXP.test(password);
-    const hasUppercase = UPPERCASE_LETTER_REGEXP.test(password);
-    const hasDigit = DIGIT_REGEXP.test(password);
-    const isValid =
-      hasCorrectLength && hasSpecialCharacters && hasLetter && hasUppercase && hasDigit;
-
-    return isValid;
-  }
-
+export class UserValidator {
   validateCreateUserRequest(request: UserCreateRequestDto): void {
     const { name, password, email }: UserCreateRequestDto = request;
     const hasValidName: boolean = name && name.split(' ').length >= 2;
-    const hasValidPassword: boolean = this.getIsPasswordValid(password);
-    const hasValidEmail: boolean = this.getIsValidEmail(email);
+    const hasValidPassword: boolean = getIsPasswordValid(password);
+    const hasValidEmail: boolean = getIsValidEmail(email);
     const hasValidInformation: boolean = hasValidName && hasValidPassword && hasValidEmail;
 
     if (!hasValidInformation) {
@@ -53,6 +25,22 @@ export class UserCreateValidator {
         { status: HttpStatus.BAD_REQUEST, error: message },
         HttpStatus.BAD_REQUEST,
       );
+    }
+  }
+
+  validateUserUpdateRequest(request: UserUpdateRequestDto): void {
+    const { email, name } = request;
+    const isValidEmail = getIsValidEmail(email);
+    const isValidName = name && name.split(' ').length >= 2;
+    const hasValidInfo = isValidEmail && isValidName;
+
+    if (!hasValidInfo) {
+      let errorMessage = '';
+
+      if (!isValidEmail) errorMessage = INVALID_EMAIL_MESSAGE;
+      if (!isValidName) errorMessage = INVALID_NAME_MESSAGE;
+
+      throw new UpdateException(errorMessage);
     }
   }
 }
