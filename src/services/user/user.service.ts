@@ -39,14 +39,14 @@ export class UserService {
   ): Promise<UserUpdateResponseDto> {
     try {
       this.userValidator.validateUserUpdateRequest(request);
-
-      const updatedUser: User = await this.updateByEmail(user.email, request);
+      const updatedUser: User = await this.updateById(user.id, request);
+      console.log('updatedUser', updatedUser);
       const response: UserUpdateResponseDto =
         this.userMapper.fromUserToUpdateUserResponse(updatedUser);
 
       return response;
     } catch (error) {
-      console.log(error);
+      console.log(error, 'error');
       throw new UpdateException();
     }
   }
@@ -63,14 +63,16 @@ export class UserService {
     });
   }
 
-  async updateRefreshToken(email: string, refreshToken: string): Promise<void> {
-    await this.userRepository.update({ email }, { refreshToken });
+  async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
+    await this.userRepository.update({ id }, { refreshToken });
   }
 
-  async updateByEmail(currentUserEmail: string, newUser: UserUpdateRequestDto): Promise<User> {
+  async updateById(currentId: number, newUser: UserUpdateRequestDto): Promise<User> {
     const { email, name } = newUser;
-
-    return (await this.userRepository.update({ email: currentUserEmail }, { email, name })).raw[0];
+    const response = await this.userRepository.update({ id: currentId }, { email, name });
+    console.log('response', response);
+    console.log('currentId', currentId);
+    return response.raw[0];
   }
 
   private async createHasFromPassword(password: string): Promise<string> {
