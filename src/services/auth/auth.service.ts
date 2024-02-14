@@ -7,6 +7,7 @@ import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
+import { UnauthorizedException } from '@exceptions';
 
 @Injectable()
 export class AuthService {
@@ -18,22 +19,36 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<AuthLoginResponseDto> {
-    const user: User = await this.userService.findOneByEmail(email);
-    const unauthorizedLoginError: HttpException = new HttpException(
-      { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-      HttpStatus.UNAUTHORIZED,
-    );
+  async validateUserByNameAndEmail(email: string, password: string): Promise<AuthLoginResponseDto> {
+    try {
+      const user: User = await this.userService.findOneByEmail(email);
 
-    if (!user) throw unauthorizedLoginError;
+      if (!user) throw new UnauthorizedException();
 
-    const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
+      const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
-    if (!isCorrectUserPassword) throw unauthorizedLoginError;
+      if (!isCorrectUserPassword) throw new UnauthorizedException();
 
-    const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
+      const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
-    return response;
+      return response;
+    } catch {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async validateUserById(id: number): Promise<AuthLoginResponseDto> {
+    try {
+      const user: User = await this.userService.findOneById(id);
+
+      if (!user) throw new UnauthorizedException();
+
+      const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
+
+      return response;
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 
   async login(user: AuthLoginResponseDto): Promise<TokensDto> {

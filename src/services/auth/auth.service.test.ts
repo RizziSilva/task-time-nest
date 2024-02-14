@@ -52,7 +52,7 @@ describe('AuthService tests', () => {
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse').mockImplementationOnce(() => response);
 
-      const result: AuthLoginResponseDto = await authService.validateUser(
+      const result: AuthLoginResponseDto = await authService.validateUserByNameAndEmail(
         request.email,
         request.password,
       );
@@ -77,9 +77,9 @@ describe('AuthService tests', () => {
         HttpStatus.UNAUTHORIZED,
       );
 
-      await expect(authService.validateUser(request.email, request.password)).rejects.toThrow(
-        httpError,
-      );
+      await expect(
+        authService.validateUserByNameAndEmail(request.email, request.password),
+      ).rejects.toThrow(httpError);
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(authMapper.fromUserToAuthLoginResponse).not.toHaveBeenCalled();
@@ -99,9 +99,9 @@ describe('AuthService tests', () => {
         HttpStatus.UNAUTHORIZED,
       );
 
-      await expect(authService.validateUser(request.email, request.password)).rejects.toThrow(
-        httpError,
-      );
+      await expect(
+        authService.validateUserByNameAndEmail(request.email, request.password),
+      ).rejects.toThrow(httpError);
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(bcrypt.compare).toHaveBeenCalled();

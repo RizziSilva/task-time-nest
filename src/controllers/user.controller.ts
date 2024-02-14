@@ -21,9 +21,6 @@ export class UserController {
     @RequestUser() user: AuthLoginResponseDto,
     @Body() request: UserUpdateRequestDto,
   ): Promise<UserUpdateResponseDto> {
-    console.log('user', user);
-    console.log('request', request);
-
     return await this.userService.update(request, user);
   }
 }

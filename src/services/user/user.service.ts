@@ -39,14 +39,13 @@ export class UserService {
   ): Promise<UserUpdateResponseDto> {
     try {
       this.userValidator.validateUserUpdateRequest(request);
+
       const updatedUser: User = await this.updateById(user.id, request);
-      console.log('updatedUser', updatedUser);
       const response: UserUpdateResponseDto =
         this.userMapper.fromUserToUpdateUserResponse(updatedUser);
 
       return response;
     } catch (error) {
-      console.log(error, 'error');
       throw new UpdateException();
     }
   }
@@ -63,16 +62,22 @@ export class UserService {
     });
   }
 
+  async findOneById(id: number): Promise<User> {
+    return await this.userRepository.findOneBy({
+      id,
+    });
+  }
+
   async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
     await this.userRepository.update({ id }, { refreshToken });
   }
 
   async updateById(currentId: number, newUser: UserUpdateRequestDto): Promise<User> {
     const { email, name } = newUser;
-    const response = await this.userRepository.update({ id: currentId }, { email, name });
-    console.log('response', response);
-    console.log('currentId', currentId);
-    return response.raw[0];
+    await this.userRepository.update({ id: currentId }, { email, name });
+    const updatedEntity: User = await this.findOneById(currentId);
+
+    return updatedEntity;
   }
 
   private async createHasFromPassword(password: string): Promise<string> {
