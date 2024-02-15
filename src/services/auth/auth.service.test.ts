@@ -12,6 +12,7 @@ import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
 import { User } from '@entities';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
+import { UnauthorizedException } from '@exceptions';
 
 describe('AuthService tests', () => {
   let authService: AuthService;
@@ -72,14 +73,9 @@ describe('AuthService tests', () => {
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse');
       jest.spyOn(bcrypt, 'compare');
 
-      const httpError: HttpException = new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-
       await expect(
         authService.validateUserByNameAndEmail(request.email, request.password),
-      ).rejects.toThrow(httpError);
+      ).rejects.toThrow(UnauthorizedException);
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(authMapper.fromUserToAuthLoginResponse).not.toHaveBeenCalled();
@@ -94,14 +90,9 @@ describe('AuthService tests', () => {
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse');
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(false));
 
-      const httpError: HttpException = new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-        HttpStatus.UNAUTHORIZED,
-      );
-
       await expect(
         authService.validateUserByNameAndEmail(request.email, request.password),
-      ).rejects.toThrow(httpError);
+      ).rejects.toThrow(UnauthorizedException);
       expect(userService.findOneByEmail).toHaveBeenCalled();
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(bcrypt.compare).toHaveBeenCalled();
