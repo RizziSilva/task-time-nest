@@ -1,2 +1,2 @@
-export { getIsPasswordValid, getIsValidEmail } from './validators';
+export { getIsPasswordValid, getIsValidEmail, getIsValidName } from './validators';
 export { getToken } from './token';

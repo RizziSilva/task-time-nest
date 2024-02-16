@@ -37,7 +37,7 @@ describe('UserService Tests', () => {
         JwtService,
         {
           provide: getRepositoryToken(User),
-          useValue: { save: jest.fn(), update: jest.fn(), findOneById: jest.fn() },
+          useValue: { save: jest.fn(), update: jest.fn(), findOneBy: jest.fn() },
         },
       ],
     }).compile();
@@ -100,5 +100,53 @@ describe('UserService Tests', () => {
     expect(result).toBe(response);
     expect(userRepository.update).toHaveBeenCalled();
     expect(userService.findOneById).toHaveBeenCalledWith(currentUserId);
+  });
+
+  it('Find one by id with success', async () => {
+    const currentUserId: number = 1;
+    const user: User = new User();
+
+    jest.spyOn(userRepository, 'findOneBy').mockResolvedValueOnce(user);
+
+    const result: User = await userService.findOneById(currentUserId);
+
+    expect(result).toBe(user);
+    expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: currentUserId });
+  });
+
+  it('Find one by email with success', async () => {
+    const email: string = 'some.email@provider.com';
+    const user: User = new User();
+
+    jest.spyOn(userRepository, 'findOneBy').mockResolvedValueOnce(user);
+
+    const result: User = await userService.findOneByEmail(email);
+
+    expect(result).toBe(user);
+    expect(userRepository.findOneBy).toHaveBeenCalledWith({ email });
+  });
+
+  it('Find one by refresh token with success', async () => {
+    const refreshToken: string = 'asdfgkjhmWQESDGdfkgmoikcawe123w3e5';
+    const user: User = new User();
+
+    jest.spyOn(userRepository, 'findOneBy').mockResolvedValueOnce(user);
+
+    const result: User = await userService.findOneByRefreshToken(refreshToken);
+
+    expect(result).toBe(user);
+    expect(userRepository.findOneBy).toHaveBeenCalledWith({ refreshToken });
+  });
+
+  it('Update refresh token by id with success', async () => {
+    const updateResponse: UpdateResult = new UpdateResult();
+    const refreshToken: string = 'asdfgkjhmWQESDGdfkgmoikcawe123w3e5';
+    const userId: number = 1;
+
+    jest.spyOn(userRepository, 'update').mockResolvedValueOnce(updateResponse);
+
+    await userService.updateRefreshToken(userId, refreshToken);
+
+    expect(userRepository.update).toHaveBeenCalledWith({ id: userId }, { refreshToken });
   });
 });
