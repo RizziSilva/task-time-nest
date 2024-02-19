@@ -32,7 +32,7 @@ export class AuthService {
       const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
       return response;
-    } catch {
+    } catch (error) {
       throw new UnauthorizedException();
     }
   }
@@ -52,7 +52,6 @@ export class AuthService {
   }
 
   async login(user: AuthLoginResponseDto): Promise<TokensDto> {
-    const tokens: TokensDto = new TokensDto();
     const accessToken: string = await this.jwtService.signAsync(
       { id: user.id },
       {
@@ -67,12 +66,10 @@ export class AuthService {
       },
     );
 
-    tokens.refresh_token = refreshToken;
-    tokens.access_token = accessToken;
-
+    const response: TokensDto = this.authMapper.fromTokensToTokensDto(accessToken, refreshToken);
     await this.userService.updateRefreshToken(user.id, refreshToken);
 
-    return tokens;
+    return response;
   }
 
   private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {

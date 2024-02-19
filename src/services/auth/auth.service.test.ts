@@ -1,20 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
-import { UNAUTHORIZED_LOGIN } from '@constants';
-import { UserValidator } from '@validators';
 import { AuthController } from '@controllers';
-import { AuthMapper, UserMapper } from '@mappers';
-import { AuthLoginRequestDto, AuthLoginResponseDto } from '@dtos';
+import { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from '@dtos';
 import { User } from '@entities';
+import { UnauthorizedException } from '@exceptions';
+import { AuthMapper, UserMapper } from '@mappers';
+import { UserValidator } from '@validators';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { UnauthorizedException } from '@exceptions';
 
-describe('AuthService tests', () => {
+describe('AuthService Tests', () => {
   let authService: AuthService;
   let authMapper: AuthMapper;
   let userService: UserService;
@@ -24,7 +22,10 @@ describe('AuthService tests', () => {
     const ref: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        { provide: getRepositoryToken(User), useValue: { findOneBy: jest.fn() } },
+        {
+          provide: getRepositoryToken(User),
+          useValue: { findOneBy: jest.fn(), update: jest.fn() },
+        },
         UserService,
         AuthService,
         AuthMapper,
@@ -43,30 +44,78 @@ describe('AuthService tests', () => {
     jest.resetAllMocks();
   });
 
-  describe('Login tests', () => {
+  describe('login Tests', () => {
     it('Login with Success', async () => {
-      const request: AuthLoginRequestDto = new AuthLoginRequestDto();
+      const request: AuthLoginResponseDto = new AuthLoginResponseDto();
+      const response: TokensDto = new TokensDto();
+      response.access_token = '';
+      response.refresh_token = '';
+
+      jest.spyOn(userService, 'updateRefreshToken').mockImplementationOnce(() => Promise.resolve());
+      jest.spyOn(jwtService, 'signAsync').mockImplementation(() => Promise.resolve(''));
+      jest.spyOn(authMapper, 'fromTokensToTokensDto').mockReturnValueOnce(response);
+
+      const result: TokensDto = await authService.login(request);
+
+      expect(result).toEqual(response);
+      expect(userService.updateRefreshToken).toHaveBeenCalled();
+      expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
+      expect(authMapper.fromTokensToTokensDto).toHaveBeenCalled();
+    });
+  });
+
+  describe('validateUserById Tests', () => {
+    it('Validate user by id with success', async () => {
+      const id: number = 1;
       const user: User = new User();
       const response: AuthLoginResponseDto = new AuthLoginResponseDto();
 
-      jest.spyOn(userService, 'findOneByEmail').mockImplementationOnce(() => Promise.resolve(user));
-      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(user);
+      jest.spyOn(authMapper, 'fromUserToAuthLoginResponse').mockImplementation(() => response);
+
+      const result: AuthLoginResponseDto = await authService.validateUserById(id);
+
+      expect(result).toBe(response);
+      expect(userService.findOneById).toHaveBeenCalled();
+      expect(authMapper.fromUserToAuthLoginResponse).toHaveBeenCalled();
+    });
+
+    it('Validate user by id with missing user with error', async () => {
+      const id: number = 1;
+      const response: AuthLoginResponseDto = new AuthLoginResponseDto();
+
+      jest.spyOn(userService, 'findOneById').mockImplementationOnce(() => Promise.resolve(null));
+      jest.spyOn(authMapper, 'fromUserToAuthLoginResponse').mockImplementation(() => response);
+
+      expect(authService.validateUserById(id)).rejects.toThrow(UnauthorizedException);
+      expect(userService.findOneById).toHaveBeenCalled();
+      expect(authMapper.fromUserToAuthLoginResponse).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('validateUserByNameAndEmail Tests', () => {
+    it('Validate user with success', async () => {
+      const user: User = new User();
+      const email: string = 'some.email@email.com';
+      const password: string = 'Valid@12345';
+      const response: AuthLoginResponseDto = new AuthLoginResponseDto();
+
+      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(user);
       jest.spyOn(authMapper, 'fromUserToAuthLoginResponse').mockImplementationOnce(() => response);
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
 
       const result: AuthLoginResponseDto = await authService.validateUserByNameAndEmail(
-        request.email,
-        request.password,
+        email,
+        password,
       );
 
-      expect(result).toEqual(response);
-      expect(userService.findOneByEmail).toHaveBeenCalled();
-      expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
+      expect(result).toBe(response);
+      expect(userService.findOneByEmail).toHaveBeenCalledWith(email);
       expect(authMapper.fromUserToAuthLoginResponse).toHaveBeenCalled();
-      expect(authMapper.fromUserToAuthLoginResponse).toHaveBeenCalledWith(user);
       expect(bcrypt.compare).toHaveBeenCalled();
     });
 
-    it('Login with error using wrong email', async () => {
+    it('Validate user with wrong email with error', async () => {
       const request: AuthLoginRequestDto = new AuthLoginRequestDto();
 
       jest.spyOn(userService, 'findOneByEmail').mockImplementationOnce(() => Promise.resolve(null));
@@ -82,7 +131,7 @@ describe('AuthService tests', () => {
       expect(bcrypt.compare).not.toHaveBeenCalled();
     });
 
-    it('Login with error using wrong password', async () => {
+    it('Validate user with wrong password with error', async () => {
       const request: AuthLoginRequestDto = new AuthLoginRequestDto();
       const user: User = new User();
 

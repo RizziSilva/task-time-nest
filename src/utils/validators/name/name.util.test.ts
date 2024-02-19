@@ -1,6 +1,6 @@
 import { getIsValidName } from './name.util';
 
-describe('Name util tests', () => {
+describe('Name util Tests', () => {
   it('getIsValidName with valid name with success', () => {
     const name: string = 'Valid Name';
 

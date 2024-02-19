@@ -1,4 +1,4 @@
-import { AuthLoginResponseDto } from '@dtos';
+import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { User } from '@entities';
 import { AuthMapper } from './auth.mapper';
 
@@ -10,7 +10,7 @@ describe('AuthMapper Tests', () => {
   });
 
   describe('fromUserToAuthLoginResponse Tests', () => {
-    it('creates auth response from user', () => {
+    it('Creates auth response from user', () => {
       const user: User = new User();
       user.id = 123;
 
@@ -18,6 +18,20 @@ describe('AuthMapper Tests', () => {
       expected.id = user.id;
 
       const result: AuthLoginResponseDto = authMapper.fromUserToAuthLoginResponse(user);
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('fromTokensToTokensDto Tests', () => {
+    it('Convert tokens to tokensDto', () => {
+      const accessToken: string = 'AccessToken';
+      const refreshToken: string = 'RefreshToken';
+      const expected: TokensDto = new TokensDto();
+      expected.access_token = accessToken;
+      expected.refresh_token = refreshToken;
+
+      const result: TokensDto = authMapper.fromTokensToTokensDto(accessToken, refreshToken);
 
       expect(result).toEqual(expected);
     });

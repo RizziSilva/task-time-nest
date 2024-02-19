@@ -1,6 +1,6 @@
 import { getIsValidEmail } from './email.util';
 
-describe('Email utils tests', () => {
+describe('Email utils Tests', () => {
   it('getIsValidEmail with valid email with Success', () => {
     const email: string = 'valid.email@email.com';
 

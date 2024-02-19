@@ -1,6 +1,6 @@
 import { getIsPasswordValid } from './password.util';
 
-describe('Password util tests', () => {
+describe('Password util Tests', () => {
   it('getIsPasswordValid with valid password with success', () => {
     const password: string = 'Valid@123';
 
