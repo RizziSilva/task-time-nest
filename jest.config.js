@@ -17,5 +17,7 @@ module.exports = {
     '@guards': '<rootDir>/src/guards',
     '@exceptions': '<rootDir>/src/exceptions',
     '@utils': '<rootDir>/src/utils',
+    '@middlewares': '<rootDir>/src/middlewares',
+    '@interfaces': '<rootDir>/src/interfaces',
   },
 };

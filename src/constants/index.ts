@@ -23,3 +23,4 @@ export {
   ACCESS_TOKEN_EXPIRATION_TIME,
   REFRESH_TOKEN_EXPIRATION_TIME,
 } from './auth/auth.constant';
+export { LOGGER_IDENTIFIER } from './logger/logger.constant';
