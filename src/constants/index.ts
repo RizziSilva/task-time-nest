@@ -12,6 +12,10 @@ export {
   INVALID_EMAIL_MESSAGE,
   INVALID_PASSWORD_MESSAGE,
 } from './user/messages.constant';
+export {
+  UPDATE_USER_EXCEPTION_DEFAULT_MESSAGE,
+  CREATE_USER_EXCEPTION_DEFAULT_MESSAGE,
+} from './user/update.constant';
 export { DATE_TIME_FORMAT } from './date/format';
 export { UNAUTHORIZED_LOGIN, UNAUTHORIZED_ACTION } from './auth/login.constant';
 export {

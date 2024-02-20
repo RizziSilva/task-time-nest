@@ -23,7 +23,8 @@
       "@constants": ["./src/constants"],
       "@decorators": ["./src/decorators"],
       "@guards": ["./src/guards"],
-      "@exceptions": ["./src/exceptions"]
+      "@exceptions": ["./src/exceptions"],
+      "@utils": ["./src/utils"]
     }
   }
 }

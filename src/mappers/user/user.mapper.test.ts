@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
+import { UserCreateRequestDto, UserCreateResponseDto, UserUpdateResponseDto } from '@dtos';
 import { User } from '@entities';
 import { DATE_TIME_FORMAT } from '@constants';
 import { UserMapper } from './user.mapper';
@@ -19,7 +19,7 @@ describe('UserMapper Test', () => {
     userMapper = new UserMapper();
   });
 
-  describe('fromCreateRequestToUser', () => {
+  describe('fromCreateRequestToUser Tests', () => {
     it('Convert user create request to user entity', () => {
       const request: UserCreateRequestDto = new UserCreateRequestDto();
       request.email = 'some@email.com';
@@ -36,7 +36,7 @@ describe('UserMapper Test', () => {
     });
   });
 
-  describe('fromUserToCreateResponse', () => {
+  describe('fromUserToCreateResponse Tests', () => {
     it('Convert user entity to create user response', () => {
       const randomInt: number = Math.random();
       const dateMock: string = dayjs(new Date()).format(DATE_TIME_FORMAT);
@@ -44,19 +44,25 @@ describe('UserMapper Test', () => {
       const user: User = new User();
       user.createdAt = dateMock;
       user.email = 'some@email.com';
-      user.password = 'some@Pass123';
       user.name = 'Some Name';
       user.updatedAt = dateMock;
       user.id = randomInt;
 
-      const expected: UserCreateResponseDto = new UserCreateResponseDto();
-      expected.email = user.email;
-      expected.name = user.name;
-      expected.id = user.id;
-      expected.createdAt = user.createdAt;
-      expected.updatedAt = user.createdAt;
+      const expected: UserCreateResponseDto = userMapper.fromUserToCreateResponse(user);
 
-      expect(userMapper.fromUserToCreateResponse(user)).toEqual(expected);
+      expect(expected).toEqual(user);
+    });
+  });
+
+  describe('fromUserToUpdateUserResponse Tests', () => {
+    it('Convert user entity to update response', () => {
+      const user: User = new User();
+      user.email = 'valid.email@email.com';
+      user.name = 'Valid Name';
+
+      const expected: UserUpdateResponseDto = userMapper.fromUserToUpdateUserResponse(user);
+
+      expect(expected).toEqual(user);
     });
   });
 });

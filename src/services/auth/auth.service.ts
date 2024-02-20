@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
@@ -7,57 +7,69 @@ import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
+import { UnauthorizedException } from '@exceptions';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
     private authMapper: AuthMapper,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<AuthLoginResponseDto> {
-    const user: User = await this.userService.findOneByEmail(email);
-    const unauthorizedLoginError: HttpException = new HttpException(
-      { status: HttpStatus.UNAUTHORIZED, error: UNAUTHORIZED_LOGIN },
-      HttpStatus.UNAUTHORIZED,
-    );
+  async validateUserByNameAndEmail(email: string, password: string): Promise<AuthLoginResponseDto> {
+    try {
+      const user: User = await this.userService.findOneByEmail(email);
 
-    if (!user) throw unauthorizedLoginError;
+      if (!user) throw new UnauthorizedException();
 
-    const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
+      const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
-    if (!isCorrectUserPassword) throw unauthorizedLoginError;
+      if (!isCorrectUserPassword) throw new UnauthorizedException();
 
-    const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
+      const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
-    return response;
+      return response;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async validateUserById(id: number): Promise<AuthLoginResponseDto> {
+    try {
+      const user: User = await this.userService.findOneById(id);
+
+      if (!user) throw new UnauthorizedException();
+
+      const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
+
+      return response;
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 
   async login(user: AuthLoginResponseDto): Promise<TokensDto> {
-    console.log('login');
-    const tokens: TokensDto = new TokensDto();
     const accessToken: string = await this.jwtService.signAsync(
-      { user },
+      { id: user.id },
       {
         secret: this.configService.get<string>('JWT_KEY'),
       },
     );
     const refreshToken: string = await this.jwtService.signAsync(
-      { user },
+      { id: user.id },
       {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
         expiresIn: REFRESH_TOKEN_EXPIRATION_TIME,
       },
     );
 
-    tokens.refresh_token = refreshToken;
-    tokens.access_token = accessToken;
+    const response: TokensDto = this.authMapper.fromTokensToTokensDto(accessToken, refreshToken);
+    await this.userService.updateRefreshToken(user.id, refreshToken);
 
-    await this.userService.updateRefreshToken(user.email, refreshToken);
-
-    return tokens;
+    return response;
   }
 
   private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {

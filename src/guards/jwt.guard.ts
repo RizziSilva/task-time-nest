@@ -7,7 +7,7 @@ import { BEARER_TOKEN_TYPE } from '@constants';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
-import { UnauthorizedException } from '@exceptions';
+import { UnauthorizedActionException } from '@exceptions';
 import { UserMapper } from '@mappers';
 
 @Injectable()
@@ -27,12 +27,12 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     const response: Response = context.switchToHttp().getResponse();
     const tokens: TokensDto = this.extractTokensFromHeader(request);
 
-    if (!tokens?.access_token) throw new UnauthorizedException();
+    if (!tokens?.access_token) throw new UnauthorizedActionException();
 
     try {
       await this.handleTokens(request, response, tokens);
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedActionException();
     }
 
     return true;
@@ -42,7 +42,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     try {
       const isValid: boolean = await this.handleAccessToken(request, response, tokens);
 
-      if (!isValid) throw new UnauthorizedException();
+      if (!isValid) throw new UnauthorizedActionException();
     } catch (error) {
       throw error;
     }
@@ -81,7 +81,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
       const user: User = await this.userService.findOneByRefreshToken(refreshToken);
       const userAuthResponse: AuthLoginResponseDto = this.userMapper.fromUserToCreateResponse(user);
 
-      if (!user) throw new UnauthorizedException();
+      if (!user) throw new UnauthorizedActionException();
 
       await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),

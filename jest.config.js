@@ -16,5 +16,6 @@ module.exports = {
     '@decorators': '<rootDir>/src/decorators',
     '@guards': '<rootDir>/src/guards',
     '@exceptions': '<rootDir>/src/exceptions',
+    '@utils': '<rootDir>/src/utils',
   },
 };
