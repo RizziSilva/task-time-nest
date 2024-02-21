@@ -19,5 +19,6 @@ module.exports = {
     '@utils': '<rootDir>/src/utils',
     '@middlewares': '<rootDir>/src/middlewares',
     '@interfaces': '<rootDir>/src/interfaces',
+    '@filters': '<rootDir>/src/filters',
   },
 };

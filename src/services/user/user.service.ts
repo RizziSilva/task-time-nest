@@ -46,7 +46,7 @@ export class UserService {
 
       return response;
     } catch (error) {
-      throw new UpdateException();
+      throw new UpdateException('', error);
     }
   }
 

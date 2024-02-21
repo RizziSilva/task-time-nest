@@ -18,8 +18,8 @@ export class UserValidator {
       let message: string = '';
 
       if (!hasValidName) message = INVALID_NAME_MESSAGE;
-      else if (!hasValidPassword) message = INVALID_EMAIL_MESSAGE;
-      else if (!hasValidEmail) message = INVALID_PASSWORD_MESSAGE;
+      else if (!hasValidPassword) message = INVALID_PASSWORD_MESSAGE;
+      else if (!hasValidEmail) message = INVALID_EMAIL_MESSAGE;
 
       throw new CreateUserException(message);
     }
