@@ -1,14 +1,13 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { RequestInfo } from '@interfaces';
-import { LOGGER_IDENTIFIER } from '@constants';
+import { RequestInfo, CustomRequest } from '@interfaces';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
   constructor(private logger: Logger) {}
 
-  private log(message: string): void {
-    this.logger.log(`${LOGGER_IDENTIFIER} ${message}`);
+  private log(message: string, identifier: string): void {
+    this.logger.log(`[${identifier}]: ${message}`);
   }
 
   private getMessageFromParameters(parameters: [string, unknown][]): string {
@@ -37,11 +36,11 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     return { endpointMessage, parametersMessage };
   }
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: CustomRequest, res: Response, next: NextFunction) {
     const requestInfo: RequestInfo = this.getEndpointInfo(req);
 
-    this.log(requestInfo.endpointMessage);
-    this.log(requestInfo.parametersMessage);
+    this.log(requestInfo.endpointMessage, req.identifier);
+    this.log(requestInfo.parametersMessage, req.identifier);
 
     next();
   }
