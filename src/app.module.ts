@@ -1,7 +1,7 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService, UserModule, AuthModule } from '@modules';
+import { TypeOrmConfigService, UserModule, AuthModule, TaskModule } from '@modules';
 import { IdentifierMiddleware, RequestLoggerMiddleware } from '@middlewares';
 
 @Module({
@@ -15,6 +15,7 @@ import { IdentifierMiddleware, RequestLoggerMiddleware } from '@middlewares';
     }),
     UserModule,
     AuthModule,
+    TaskModule,
   ],
   providers: [Logger],
 })

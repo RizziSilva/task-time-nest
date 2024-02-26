@@ -15,7 +15,7 @@ export {
 export {
   UPDATE_USER_EXCEPTION_DEFAULT_MESSAGE,
   CREATE_USER_EXCEPTION_DEFAULT_MESSAGE,
-} from './user/update.constant';
+} from './user/exception.constant';
 export { DATE_TIME_FORMAT } from './date/format';
 export { UNAUTHORIZED_LOGIN, UNAUTHORIZED_ACTION } from './auth/login.constant';
 export {
@@ -23,3 +23,8 @@ export {
   ACCESS_TOKEN_EXPIRATION_TIME,
   REFRESH_TOKEN_EXPIRATION_TIME,
 } from './auth/auth.constant';
+export {
+  CREATE_TASK_EXCEPTION_DEFAULT_MESSAGE,
+  CREATE_TASK_EXCEPTION_MISSING_ENDED,
+  CREATE_TASK_EXCEPTION_MISSING_INITIATED,
+} from './task/exception.constant';
