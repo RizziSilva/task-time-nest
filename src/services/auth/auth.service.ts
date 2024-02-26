@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
-import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_LOGIN } from '@constants';
+import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_ACTION, UNAUTHORIZED_LOGIN } from '@constants';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
 import { UnauthorizedException } from '@exceptions';
@@ -23,17 +23,17 @@ export class AuthService {
     try {
       const user: User = await this.userService.findOneByEmail(email);
 
-      if (!user) throw new UnauthorizedException();
+      if (!user) throw new UnauthorizedException(UNAUTHORIZED_LOGIN);
 
       const isCorrectUserPassword: boolean = await this.comparePasswords(user.password, password);
 
-      if (!isCorrectUserPassword) throw new UnauthorizedException();
+      if (!isCorrectUserPassword) throw new UnauthorizedException(UNAUTHORIZED_LOGIN);
 
       const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
       return response;
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(error);
     }
   }
 
@@ -41,13 +41,13 @@ export class AuthService {
     try {
       const user: User = await this.userService.findOneById(id);
 
-      if (!user) throw new UnauthorizedException();
+      if (!user) throw new UnauthorizedException(UNAUTHORIZED_ACTION);
 
       const response: AuthLoginResponseDto = this.authMapper.fromUserToAuthLoginResponse(user);
 
       return response;
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException(error);
     }
   }
 

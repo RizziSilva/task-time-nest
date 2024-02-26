@@ -37,17 +37,13 @@ export class UserService {
     request: UserUpdateRequestDto,
     user: AuthLoginResponseDto,
   ): Promise<UserUpdateResponseDto> {
-    try {
-      this.userValidator.validateUserUpdateRequest(request);
+    this.userValidator.validateUserUpdateRequest(request);
 
-      const updatedUser: User = await this.updateById(user.id, request);
-      const response: UserUpdateResponseDto =
-        this.userMapper.fromUserToUpdateUserResponse(updatedUser);
+    const updatedUser: User = await this.updateById(user.id, request);
+    const response: UserUpdateResponseDto =
+      this.userMapper.fromUserToUpdateUserResponse(updatedUser);
 
-      return response;
-    } catch (error) {
-      throw new UpdateException();
-    }
+    return response;
   }
 
   async findOneByEmail(email: string): Promise<User> {

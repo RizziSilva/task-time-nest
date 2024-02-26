@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { BEARER_TOKEN_TYPE } from '@constants';
+import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
@@ -27,12 +27,12 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     const response: Response = context.switchToHttp().getResponse();
     const tokens: TokensDto = this.extractTokensFromHeader(request);
 
-    if (!tokens?.access_token) throw new UnauthorizedActionException();
+    if (!tokens?.access_token) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
     try {
       await this.handleTokens(request, response, tokens);
     } catch (error) {
-      throw new UnauthorizedActionException();
+      throw new UnauthorizedActionException(error);
     }
 
     return true;
@@ -42,7 +42,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     try {
       const isValid: boolean = await this.handleAccessToken(request, response, tokens);
 
-      if (!isValid) throw new UnauthorizedActionException();
+      if (!isValid) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
     } catch (error) {
       throw error;
     }
@@ -81,7 +81,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
       const user: User = await this.userService.findOneByRefreshToken(refreshToken);
       const userAuthResponse: AuthLoginResponseDto = this.userMapper.fromUserToCreateResponse(user);
 
-      if (!user) throw new UnauthorizedActionException();
+      if (!user) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
       await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
@@ -95,7 +95,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
 
       return true;
     } catch (error) {
-      throw error;
+      return false;
     }
   }
 
