@@ -34,7 +34,7 @@ describe('TaskService Tests', () => {
         TaskValidator,
         {
           provide: getRepositoryToken(User),
-          useValue: { save: jest.fn() },
+          useValue: {},
         },
         {
           provide: getRepositoryToken(Task),
@@ -75,9 +75,9 @@ describe('TaskService Tests', () => {
 
       expect(result).toEqual(response);
       expect(taskValidator.validateCreateTaskRequest).toHaveBeenCalled();
-      expect(taskMapper.fromCreateRequestToTask).toHaveBeenCalled();
+      expect(taskMapper.fromCreateRequestToTask).toHaveBeenCalledWith(user.id, request);
       expect(taskRepository.save).toHaveBeenCalled();
-      expect(taskMapper.fromTaskToCreateTaskResponse).toHaveBeenCalledWith(user.id, request);
+      expect(taskMapper.fromTaskToCreateTaskResponse).toHaveBeenCalled();
     });
   });
 });
