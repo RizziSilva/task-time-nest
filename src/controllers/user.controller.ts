@@ -15,7 +15,7 @@ export class UserController {
   }
 
   @UseGuards(UserJwtAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @Put()
   async updateUser(
     @RequestUser() user: AuthLoginResponseDto,

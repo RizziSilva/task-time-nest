@@ -5,4 +5,9 @@ export {
   UserUpdateResponseDto,
 } from './user';
 export { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from './auth';
-export { CreateTaskRequestDto, CreateTaskResponseDto } from './task';
+export {
+  CreateTaskRequestDto,
+  CreateTaskResponseDto,
+  UpdateTaskRequestDto,
+  UpdateTaskResponseDto,
+} from './task';
