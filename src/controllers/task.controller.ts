@@ -35,9 +35,9 @@ export class TaskController {
 
   @UseGuards(UserJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Put()
+  @Put(':taskId')
   async updateTask(
-    @Param() taskId: number,
+    @Param('taskId') taskId: number,
     @Body() request: UpdateTaskRequestDto,
   ): Promise<UpdateTaskResponseDto> {
     return await this.taskService.update(taskId, request);

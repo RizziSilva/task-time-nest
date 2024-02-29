@@ -10,9 +10,10 @@ import {
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TaskValidator } from '@validators';
-import { CreateTaskException, UpdateTaskException } from '@exceptions';
+import { UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
 import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
+import { UpdateTask } from '@interfaces';
 
 @Injectable()
 export class TaskService {
@@ -43,7 +44,8 @@ export class TaskService {
 
     if (!task) throw new UpdateTaskException(UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND);
 
-    const updatedTask: Task = await this.updateById(taskId, request);
+    const updateTask: UpdateTask = this.taskMapper.fromTaskUpdateRequestToUpdateTask(request);
+    const updatedTask: Task = await this.updateById(taskId, updateTask);
     const response: UpdateTaskResponseDto =
       this.taskMapper.fromTaskToTaskUpdateResponse(updatedTask);
 
@@ -51,10 +53,10 @@ export class TaskService {
   }
 
   async findOneById(id: number): Promise<Task> {
-    return this.taskRepository.findOneBy({ id });
+    return await this.taskRepository.findOneBy({ id: id });
   }
 
-  async updateById(id: number, newTask: UpdateTaskRequestDto): Promise<Task> {
+  async updateById(id: number, newTask: UpdateTask): Promise<Task> {
     await this.taskRepository.update({ id }, { ...newTask });
     const task: Task = await this.findOneById(id);
 

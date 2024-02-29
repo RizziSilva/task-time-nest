@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+import dayjs from 'dayjs';
 import {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
@@ -5,7 +7,8 @@ import {
   UpdateTaskResponseDto,
 } from '@dtos';
 import { Task } from '@entities';
-import { Injectable } from '@nestjs/common';
+import { UpdateTask } from '@interfaces';
+import { DATE_TIME_FORMAT } from '@constants';
 
 @Injectable()
 export class TaskMapper {
@@ -33,12 +36,13 @@ export class TaskMapper {
     return response;
   }
 
-  fromTaskUpdateRequestToTask(request: UpdateTaskRequestDto): Task {
-    const task: Task = new Task();
+  fromTaskUpdateRequestToUpdateTask(request: UpdateTaskRequestDto): UpdateTask {
+    const task: UpdateTask = new UpdateTask();
 
     task.title = request.title;
     task.description = request.description;
     task.link = request.link;
+    task.updatedAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
 
     return task;
   }

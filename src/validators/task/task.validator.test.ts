@@ -1,11 +1,12 @@
 import { CreateTaskRequestDto } from '@dtos';
-import { CreateTaskException } from '@exceptions';
+import { CreateTaskException, UpdateTaskException } from '@exceptions';
 import { TaskValidator } from './task.validator';
 import {
   CREATE_TASK_EXCEPTION_MISSING_ENDED,
   CREATE_TASK_EXCEPTION_MISSING_INITIATED,
   CREATE_TASK_EXCEPTION_TIMES_RELATION,
   TEN_MINUTES,
+  UPDATE_TASK_EXCEPTION_MISSING_TASK_ID,
 } from '@constants';
 
 describe('TaskValidator tests', () => {
@@ -77,6 +78,27 @@ describe('TaskValidator tests', () => {
 
       expect(act).toThrow(CreateTaskException);
       expect(act).toThrow(CREATE_TASK_EXCEPTION_TIMES_RELATION);
+    });
+  });
+
+  describe('validateUpdateTaskRequest Tests', () => {
+    it('Validate taskId exists with success', () => {
+      const taskId: number = 1;
+
+      const act: Function = () => {
+        validator.validateUpdateTaskRequest(taskId);
+      };
+
+      expect(act).not.toThrow();
+    });
+
+    it('Validate taskId exists throw exception', () => {
+      const act: Function = () => {
+        validator.validateUpdateTaskRequest(undefined);
+      };
+
+      expect(act).toThrow(UpdateTaskException);
+      expect(act).toThrow(UPDATE_TASK_EXCEPTION_MISSING_TASK_ID);
     });
   });
 });
