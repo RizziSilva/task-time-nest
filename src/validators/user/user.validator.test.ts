@@ -47,7 +47,7 @@ describe('UserValidator Tests', () => {
       const request: UserCreateRequestDto = new UserCreateRequestDto();
       request.name = 'Valid Name';
       request.email = 'invalidEmail';
-      request.password = 'somePassword';
+      request.password = 'ValidPass@123';
 
       expect(() => {
         validator.validateCreateUserRequest(request);
