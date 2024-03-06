@@ -1,16 +1,25 @@
-import { TaskController } from '@controllers';
-import { Test, TestingModule } from '@nestjs/testing';
-import { TaskService } from './task.service';
-import { AuthMapper, TaskMapper, UserMapper } from '@mappers';
-import { TaskValidator, UserValidator } from '@validators';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Task, User } from '@entities';
-import { Repository } from 'typeorm';
-import { AuthLoginResponseDto, CreateTaskRequestDto, CreateTaskResponseDto } from '@dtos';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository, UpdateResult } from 'typeorm';
+import { TaskValidator, UserValidator } from '@validators';
+import { AuthMapper, TaskMapper, UserMapper } from '@mappers';
+import { TaskController } from '@controllers';
+import { Task, User } from '@entities';
+import {
+  AuthLoginResponseDto,
+  CreateTaskRequestDto,
+  CreateTaskResponseDto,
+  UpdateTaskRequestDto,
+  UpdateTaskResponseDto,
+} from '@dtos';
+import { UpdateTask } from '@interfaces';
+import { UpdateTaskException } from '@exceptions';
+import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
+import { TaskService } from './task.service';
 
 describe('TaskService Tests', () => {
   let taskService: TaskService;
@@ -38,7 +47,7 @@ describe('TaskService Tests', () => {
         },
         {
           provide: getRepositoryToken(Task),
-          useValue: { save: jest.fn() },
+          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn() },
         },
       ],
     }).compile();
@@ -78,6 +87,105 @@ describe('TaskService Tests', () => {
       expect(taskMapper.fromCreateRequestToTask).toHaveBeenCalledWith(user.id, request);
       expect(taskRepository.save).toHaveBeenCalled();
       expect(taskMapper.fromTaskToCreateTaskResponse).toHaveBeenCalled();
+    });
+  });
+
+  describe('update Tests', () => {
+    it('Updates a task with success', async () => {
+      const taskId: number = 1;
+
+      const request: UpdateTaskRequestDto = new UpdateTaskRequestDto();
+      request.description = 'Test description';
+
+      const task: Task = new Task();
+
+      const updateTask: UpdateTask = new UpdateTask();
+      updateTask.description = request.description;
+
+      const updatedTask: Task = new Task();
+      updatedTask.description = request.description;
+
+      const response: UpdateTaskResponseDto = new UpdateTaskResponseDto();
+      response.description = updatedTask.description;
+
+      jest.spyOn(taskValidator, 'validateUpdateTaskRequest').mockImplementationOnce(() => {});
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
+      jest.spyOn(taskMapper, 'fromTaskUpdateRequestToUpdateTask').mockReturnValueOnce(updateTask);
+      jest.spyOn(taskService, 'updateById').mockResolvedValueOnce(updatedTask);
+      jest.spyOn(taskMapper, 'fromTaskToTaskUpdateResponse').mockReturnValueOnce(response);
+
+      const result: UpdateTaskResponseDto = await taskService.update(taskId, request);
+
+      expect(result).toEqual(response);
+      expect(taskValidator.validateUpdateTaskRequest).toHaveBeenCalledWith(taskId);
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
+      expect(taskMapper.fromTaskUpdateRequestToUpdateTask).toHaveBeenCalled();
+      expect(taskService.updateById).toHaveBeenCalledWith(taskId, updateTask);
+      expect(taskMapper.fromTaskToTaskUpdateResponse).toHaveBeenCalled();
+    });
+
+    it('Updates a task with task not found by id throws exception', async () => {
+      const taskId: number = 1;
+
+      const request: UpdateTaskRequestDto = new UpdateTaskRequestDto();
+
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(null);
+
+      const act: Function = async () => {
+        await taskService.update(taskId, request);
+      };
+
+      expect(act).rejects.toThrow(UpdateTaskException);
+      expect(act).rejects.toThrow(UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND);
+    });
+  });
+
+  describe('findOneById Tests', () => {
+    it('Find one task by id and return with success', async () => {
+      const taskId: number = 1;
+      const task: Task = new Task();
+      task.title = 'Some task';
+
+      jest.spyOn(taskRepository, 'findOneBy').mockResolvedValueOnce(task);
+
+      const result: Task = await taskService.findOneById(taskId);
+
+      expect(result).toBe(task);
+      expect(taskRepository.findOneBy).toHaveBeenCalledWith({ id: taskId });
+    });
+
+    it('Try find one task by id and return null with success', async () => {
+      const taskId: number = 2;
+
+      jest.spyOn(taskRepository, 'findOneBy').mockResolvedValueOnce(null);
+
+      const result: Task = await taskService.findOneById(taskId);
+
+      expect(result).toBeNull();
+      expect(taskRepository.findOneBy).toHaveBeenCalledWith({ id: taskId });
+    });
+  });
+
+  describe('updateById Tests', () => {
+    it('Updates a task and return it with success', async () => {
+      const taskId: number = 1;
+
+      const updateTask: UpdateTask = new UpdateTask();
+      updateTask.title = 'Some title';
+
+      const updateResponse: UpdateResult = new UpdateResult();
+
+      const task: Task = new Task();
+      task.title = updateTask.title;
+
+      jest.spyOn(taskRepository, 'update').mockResolvedValueOnce(updateResponse);
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
+
+      const result: Task = await taskService.updateById(taskId, updateTask);
+
+      expect(result).toBe(task);
+      expect(taskRepository.update).toHaveBeenCalledWith({ id: taskId }, { ...updateTask });
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
     });
   });
 });

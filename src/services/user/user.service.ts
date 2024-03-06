@@ -12,7 +12,6 @@ import {
 import { UserMapper } from '@mappers';
 import { User } from '@entities';
 import { UserValidator } from '@validators';
-import { UpdateException } from '@exceptions';
 
 @Injectable()
 export class UserService {
