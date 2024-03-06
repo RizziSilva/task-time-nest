@@ -23,6 +23,7 @@ export class UserService {
 
   async create(request: UserCreateRequestDto): Promise<UserCreateResponseDto> {
     this.userValidator.validateCreateUserRequest(request);
+
     const userPasswordHash: string = await this.createHasFromPassword(request.password);
     const user: User = this.userMapper.fromCreateRequestToUser(request, userPasswordHash);
     const entityResponse: User = await this.userRepository.save(user);

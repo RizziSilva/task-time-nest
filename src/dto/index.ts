@@ -11,3 +11,4 @@ export {
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from './task';
+export { CreateTaskTimeResponseDto, CreateTaskTimeRequestDto, TimesDto } from './task-time';

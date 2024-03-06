@@ -6,6 +6,8 @@ import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
   CreateTaskResponseDto,
+  CreateTaskTimeRequestDto,
+  CreateTaskTimeResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -14,6 +16,7 @@ import { UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
 import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { UpdateTask } from '@interfaces';
+import { TaskTimeService } from '../task-time/taskTime.service';
 
 @Injectable()
 export class TaskService {
@@ -21,6 +24,7 @@ export class TaskService {
     @InjectRepository(Task) private taskRepository: Repository<Task>,
     private taskValidator: TaskValidator,
     private taskMapper: TaskMapper,
+    private taskTimeService: TaskTimeService,
   ) {}
 
   async create(
@@ -31,6 +35,11 @@ export class TaskService {
 
     const newTask: Task = this.taskMapper.fromCreateRequestToTask(user.id, request);
     const entityResponse: Task = await this.taskRepository.save(newTask);
+    const taskTimeRequest: CreateTaskTimeRequestDto =
+      this.taskMapper.fromCreateRequestToCreateTaskTimeRequest(request, entityResponse.id);
+    const taskTime: CreateTaskTimeResponseDto = await this.taskTimeService.createTaskTime(
+      taskTimeRequest,
+    );
     const response: CreateTaskResponseDto =
       this.taskMapper.fromTaskToCreateTaskResponse(entityResponse);
 

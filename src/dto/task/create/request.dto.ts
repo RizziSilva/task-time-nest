@@ -2,6 +2,6 @@ export class CreateTaskRequestDto {
   title: string;
   description: string;
   link: string;
-  initiatedAt: Date;
-  endedAt: Date;
+  initiatedAt: string;
+  endedAt: string;
 }
