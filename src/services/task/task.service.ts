@@ -40,8 +40,10 @@ export class TaskService {
     const taskTime: CreateTaskTimeResponseDto = await this.taskTimeService.createTaskTime(
       taskTimeRequest,
     );
-    const response: CreateTaskResponseDto =
-      this.taskMapper.fromTaskToCreateTaskResponse(entityResponse);
+    const response: CreateTaskResponseDto = this.taskMapper.fromTaskAndTaskTimeToCreateTaskResponse(
+      entityResponse,
+      taskTime,
+    );
 
     return response;
   }

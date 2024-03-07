@@ -4,11 +4,12 @@ import {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
+  CreateTaskTimeResponseDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
-import { Task, TaskTime } from '@entities';
+import { Task } from '@entities';
 import { UpdateTask } from '@interfaces';
 import { DATE_TIME_FORMAT } from '@constants';
 
@@ -25,7 +26,10 @@ export class TaskMapper {
     return task;
   }
 
-  fromTaskAndTaskTimeToCreateTaskResponse(task: Task, taskTime: TaskTime): CreateTaskResponseDto {
+  fromTaskAndTaskTimeToCreateTaskResponse(
+    task: Task,
+    taskTime: CreateTaskTimeResponseDto,
+  ): CreateTaskResponseDto {
     const response: CreateTaskResponseDto = new CreateTaskResponseDto();
     const times: TimesDto = new TimesDto();
 
@@ -35,12 +39,15 @@ export class TaskMapper {
     response.id = task.id;
     response.description = task.description;
     response.updatedAt = task.updatedAt;
+    response.totalTimeSpent = taskTime.timeSpent;
 
     times.createdAt = taskTime.createdAt;
     times.endedAt = taskTime.endedAt;
     times.initiatedAt = taskTime.initiatedAt;
     times.updatedAt = taskTime.updatedAt;
-    times.timeSpent = ;
+    times.timeSpent = taskTime.timeSpent;
+
+    response.times = new Array(times);
 
     return response;
   }

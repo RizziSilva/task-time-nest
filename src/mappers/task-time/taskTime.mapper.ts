@@ -6,13 +6,14 @@ import dayjs from 'dayjs';
 
 @Injectable()
 export class TaskTimeMapper {
-  fromCreateTaskTimeToTaskTime(request: CreateTaskTimeRequestDto): TaskTime {
+  fromCreateTaskTimeToTaskTime(request: CreateTaskTimeRequestDto, timeSpent: number): TaskTime {
     const taskTime: TaskTime = new TaskTime();
 
     taskTime.createdAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
     taskTime.taskId = request.taskId;
     taskTime.initiatedAt = dayjs(request.initiatedAt).format(DATE_TIME_FORMAT);
     taskTime.endedAt = dayjs(request.endedAt).format(DATE_TIME_FORMAT);
+    taskTime.timeSpent = timeSpent;
 
     return taskTime;
   }
@@ -25,6 +26,7 @@ export class TaskTimeMapper {
     response.initiatedAt = taskTime.initiatedAt;
     response.taskId = taskTime.taskId;
     response.updatedAt = taskTime.updatedAt;
+    response.timeSpent = taskTime.timeSpent;
 
     return response;
   }

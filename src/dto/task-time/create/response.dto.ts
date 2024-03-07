@@ -4,4 +4,5 @@ export class CreateTaskTimeResponseDto {
   initiatedAt: string;
   endedAt: string;
   taskId: number;
+  timeSpent: number;
 }

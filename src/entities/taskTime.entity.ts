@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'taskTime' })
 export class TaskTime {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,4 +19,7 @@ export class TaskTime {
 
   @Column({ name: 'id_task' })
   taskId: number;
+
+  @Column({ name: 'time_spent' })
+  timeSpent: number;
 }
