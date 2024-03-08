@@ -3,14 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
-import { TaskValidator, UserValidator } from '@validators';
-import { AuthMapper, TaskMapper, UserMapper } from '@mappers';
+import { TaskTimeValidator, TaskValidator, UserValidator } from '@validators';
+import { AuthMapper, TaskMapper, TaskTimeMapper, UserMapper } from '@mappers';
 import { TaskController } from '@controllers';
-import { Task, User } from '@entities';
+import { Task, TaskTime, User } from '@entities';
 import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
   CreateTaskResponseDto,
+  CreateTaskTimeRequestDto,
+  CreateTaskTimeResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -20,12 +22,14 @@ import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
 import { TaskService } from './task.service';
+import { TaskTimeService } from '../task-time/taskTime.service';
 
 describe('TaskService Tests', () => {
   let taskService: TaskService;
   let taskMapper: TaskMapper;
   let taskRepository: Repository<Task>;
   let taskValidator: TaskValidator;
+  let taskTimeService: TaskTimeService;
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -41,6 +45,9 @@ describe('TaskService Tests', () => {
         AuthMapper,
         JwtService,
         TaskValidator,
+        TaskTimeService,
+        TaskTimeValidator,
+        TaskTimeMapper,
         {
           provide: getRepositoryToken(User),
           useValue: {},
@@ -49,6 +56,10 @@ describe('TaskService Tests', () => {
           provide: getRepositoryToken(Task),
           useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn() },
         },
+        {
+          provide: getRepositoryToken(TaskTime),
+          useValue: { save: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -56,6 +67,7 @@ describe('TaskService Tests', () => {
     taskMapper = ref.get<TaskMapper>(TaskMapper);
     taskRepository = ref.get<Repository<Task>>(getRepositoryToken(Task));
     taskValidator = ref.get<TaskValidator>(TaskValidator);
+    taskTimeService = ref.get<TaskTimeService>(TaskTimeService);
   });
 
   describe('create Tests', () => {
@@ -70,15 +82,26 @@ describe('TaskService Tests', () => {
       const task: Task = new Task();
       task.title = request.title;
       task.description = request.description;
+      task.id = 1;
 
       const response: CreateTaskResponseDto = new CreateTaskResponseDto();
       response.title = request.title;
       response.description = request.description;
 
+      const taskTimeRequest: CreateTaskTimeRequestDto = new CreateTaskTimeRequestDto();
+
+      const taskTimeResponse: CreateTaskTimeResponseDto = new CreateTaskTimeResponseDto();
+
       jest.spyOn(taskValidator, 'validateCreateTaskRequest').mockImplementation(() => {});
       jest.spyOn(taskMapper, 'fromCreateRequestToTask').mockReturnValueOnce(task);
       jest.spyOn(taskRepository, 'save').mockResolvedValueOnce(task);
-      jest.spyOn(taskMapper, 'fromTaskToCreateTaskResponse').mockReturnValueOnce(response);
+      jest
+        .spyOn(taskMapper, 'fromTaskAndTaskTimeToCreateTaskResponse')
+        .mockReturnValueOnce(response);
+      jest
+        .spyOn(taskMapper, 'fromCreateRequestToCreateTaskTimeRequest')
+        .mockReturnValueOnce(taskTimeRequest);
+      jest.spyOn(taskTimeService, 'createTaskTime').mockResolvedValueOnce(taskTimeResponse);
 
       const result: CreateTaskResponseDto = await taskService.create(user, request);
 
@@ -86,7 +109,9 @@ describe('TaskService Tests', () => {
       expect(taskValidator.validateCreateTaskRequest).toHaveBeenCalled();
       expect(taskMapper.fromCreateRequestToTask).toHaveBeenCalledWith(user.id, request);
       expect(taskRepository.save).toHaveBeenCalled();
-      expect(taskMapper.fromTaskToCreateTaskResponse).toHaveBeenCalled();
+      expect(taskMapper.fromTaskAndTaskTimeToCreateTaskResponse).toHaveBeenCalled();
+      expect(taskMapper.fromCreateRequestToCreateTaskTimeRequest).toHaveBeenCalled();
+      expect(taskTimeService.createTaskTime).toHaveBeenCalled();
     });
   });
 

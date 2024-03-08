@@ -1,6 +1,8 @@
 import {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
+  CreateTaskTimeResponseDto,
+  TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -40,14 +42,33 @@ describe('TaskMapper tests', () => {
 
   describe('fromTaskToCreateTaskResponse tests', () => {
     it('Convert task to response', () => {
+      const timeSpent: number = 1234;
+
       const task: Task = new Task();
       task.title = 'Task title';
       task.description = 'Task description';
       task.link = 'Task link';
 
-      const result: CreateTaskResponseDto = taskMapper.fromTaskToCreateTaskResponse(task);
+      const taskTimeResponse: CreateTaskTimeResponseDto = new CreateTaskTimeResponseDto();
+      taskTimeResponse.timeSpent = timeSpent;
+      taskTimeResponse.taskId = 1;
 
-      expect(result).toEqual(task);
+      const times: TimesDto = new TimesDto();
+      times.timeSpent = timeSpent;
+
+      const expected: CreateTaskResponseDto = new CreateTaskResponseDto();
+      expected.times = new Array(times);
+      expected.title = task.title;
+      expected.description = task.description;
+      expected.link = task.link;
+      expected.totalTimeSpent = timeSpent;
+
+      const result: CreateTaskResponseDto = taskMapper.fromTaskAndTaskTimeToCreateTaskResponse(
+        task,
+        taskTimeResponse,
+      );
+
+      expect(result).toEqual(expected);
     });
   });
 

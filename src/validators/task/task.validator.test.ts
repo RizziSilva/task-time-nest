@@ -1,13 +1,15 @@
+import dayjs from 'dayjs';
 import { CreateTaskRequestDto } from '@dtos';
 import { CreateTaskException, UpdateTaskException } from '@exceptions';
-import { TaskValidator } from './task.validator';
 import {
   CREATE_TASK_EXCEPTION_MISSING_ENDED,
   CREATE_TASK_EXCEPTION_MISSING_INITIATED,
   CREATE_TASK_EXCEPTION_TIMES_RELATION,
+  DATE_TIME_FORMAT,
   TEN_MINUTES,
   UPDATE_TASK_EXCEPTION_MISSING_TASK_ID,
 } from '@constants';
+import { TaskValidator } from './task.validator';
 
 describe('TaskValidator tests', () => {
   let validator: TaskValidator;
@@ -21,7 +23,7 @@ describe('TaskValidator tests', () => {
 
     newDate.setMinutes(newDate.getMinutes() + minutes);
 
-    return newDate;
+    return dayjs(newDate).format(DATE_TIME_FORMAT);
   }
 
   describe('validateCreateTaskRequest Tests', () => {
@@ -29,7 +31,7 @@ describe('TaskValidator tests', () => {
       const now: Date = new Date();
       const request: CreateTaskRequestDto = new CreateTaskRequestDto();
 
-      request.initiatedAt = now;
+      request.initiatedAt = dayjs(now).format(DATE_TIME_FORMAT);
       request.endedAt = dateHelper(now, TEN_MINUTES);
 
       const act: Function = () => {
@@ -42,7 +44,7 @@ describe('TaskValidator tests', () => {
     it('Validate request without initial time throw exception', () => {
       const request: CreateTaskRequestDto = new CreateTaskRequestDto();
 
-      request.endedAt = new Date();
+      request.endedAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
 
       const act: Function = () => {
         validator.validateCreateTaskRequest(request);
@@ -55,7 +57,7 @@ describe('TaskValidator tests', () => {
     it('Validate request without endedAt time throw exception', () => {
       const request: CreateTaskRequestDto = new CreateTaskRequestDto();
 
-      request.initiatedAt = new Date();
+      request.initiatedAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
 
       const act: Function = () => {
         validator.validateCreateTaskRequest(request);
@@ -70,7 +72,7 @@ describe('TaskValidator tests', () => {
       const now: Date = new Date();
 
       request.initiatedAt = dateHelper(now, TEN_MINUTES);
-      request.endedAt = now;
+      request.endedAt = dayjs(now).format(DATE_TIME_FORMAT);
 
       const act: Function = () => {
         validator.validateCreateTaskRequest(request);
