@@ -8,6 +8,7 @@ import {
 } from '@constants';
 import { CreateTaskTimeRequestDto, UpdateTaskTimeRequestDto } from '@dtos';
 import { CreateTaskTimeException, UpdateTaskTimeException } from '@exceptions';
+import { TaskTime } from '@entities';
 
 @Injectable()
 export class TaskTimeValidator {

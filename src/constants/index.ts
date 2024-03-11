@@ -41,5 +41,6 @@ export {
   UPDATE_TASK_TIME_MISSING_ENDED,
   UPDATE_TASK_TIME_MISSING_INITIATED,
   UPDATE_TASK_TIME_TIMES_RELATION,
+  UPDATE_TASK_TIME_MISSING_TASK_TIME,
 } from './task-time/exception.constant';
 export { ONE_MINUTE_IN_SECONDS, ONE_HOURS_IN_MINUTES } from './task-time/test.constant';

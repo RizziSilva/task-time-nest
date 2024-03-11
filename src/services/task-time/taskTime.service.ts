@@ -11,6 +11,8 @@ import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
 import { calculateDifferenceInSeconds } from '@utils';
+import { UpdateTaskTimeException } from '@exceptions';
+import { UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
 
 @Injectable()
 export class TaskTimeService {
@@ -37,6 +39,10 @@ export class TaskTimeService {
     taskTimeId: number,
   ): Promise<UpdateTaskTimeResponseDto> {
     this.taskTimeValidator.validateTaskTimeUpdateRequest(request, taskTimeId);
+    const currentTaskTime: TaskTime = await this.findOnById(taskTimeId);
+
+    if (!currentTaskTime)
+      throw new UpdateTaskTimeException(`${UPDATE_TASK_TIME_MISSING_TASK_TIME}${taskTimeId}.`);
 
     const timeSpent: number = calculateDifferenceInSeconds(request.initiatedAt, request.endedAt);
     const taskTime: TaskTime = this.taskTimeMapper.fromUpdateTaskTimeRequestToTaskTime(
@@ -50,9 +56,15 @@ export class TaskTimeService {
     return response;
   }
 
+  async findOnById(id: number): Promise<TaskTime> {
+    const taskTime: TaskTime = await this.taskTimeRepository.findOneBy({ id });
+
+    return taskTime;
+  }
+
   async updateById(entity: TaskTime, id: number): Promise<TaskTime> {
     await this.taskTimeRepository.update({ id }, entity);
-    const taskTime: TaskTime = await this.taskTimeRepository.findOneBy({ id });
+    const taskTime: TaskTime = await this.findOnById(id);
 
     return taskTime;
   }
