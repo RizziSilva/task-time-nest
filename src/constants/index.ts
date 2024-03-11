@@ -33,3 +33,8 @@ export {
   UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
 } from './task/exception.constant';
 export { TEN_MINUTES } from './task/test.constant';
+export {
+  CREATE_TASK_TIME_EXCEPTION_DEFAULT_MESSAGE,
+  CREATE_TASK_TIME_MISSING_TASK_ID,
+} from './task-time/exception.constant';
+export { ONE_MINUTE_IN_SECONDS, ONE_HOURS_IN_MINUTES } from './task-time/test.constant';

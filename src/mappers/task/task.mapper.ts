@@ -3,6 +3,9 @@ import dayjs from 'dayjs';
 import {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
+  CreateTaskTimeRequestDto,
+  CreateTaskTimeResponseDto,
+  TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -23,8 +26,12 @@ export class TaskMapper {
     return task;
   }
 
-  fromTaskToCreateTaskResponse(task: Task): CreateTaskResponseDto {
+  fromTaskAndTaskTimeToCreateTaskResponse(
+    task: Task,
+    taskTime: CreateTaskTimeResponseDto,
+  ): CreateTaskResponseDto {
     const response: CreateTaskResponseDto = new CreateTaskResponseDto();
+    const times: TimesDto = new TimesDto();
 
     response.createdAt = task.createdAt;
     response.title = task.title;
@@ -32,6 +39,15 @@ export class TaskMapper {
     response.id = task.id;
     response.description = task.description;
     response.updatedAt = task.updatedAt;
+    response.totalTimeSpent = taskTime.timeSpent;
+
+    times.createdAt = taskTime.createdAt;
+    times.endedAt = taskTime.endedAt;
+    times.initiatedAt = taskTime.initiatedAt;
+    times.updatedAt = taskTime.updatedAt;
+    times.timeSpent = taskTime.timeSpent;
+
+    response.times = new Array(times);
 
     return response;
   }
@@ -58,5 +74,18 @@ export class TaskMapper {
     response.updatedAt = task.updatedAt;
 
     return response;
+  }
+
+  fromCreateRequestToCreateTaskTimeRequest(
+    request: CreateTaskRequestDto,
+    taskId: number,
+  ): CreateTaskTimeRequestDto {
+    const taskTimeRequest: CreateTaskTimeRequestDto = new CreateTaskTimeRequestDto();
+
+    taskTimeRequest.endedAt = request.endedAt;
+    taskTimeRequest.initiatedAt = request.initiatedAt;
+    taskTimeRequest.taskId = taskId;
+
+    return taskTimeRequest;
   }
 }

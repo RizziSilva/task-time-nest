@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Task, User } from '../entities';
+import { Task, TaskTime, User } from '../entities';
 
 // TODO silva.william 16/01/2024: Achar uma maneira de utilizar a mesma config para o modulo do nestjs e o JSON das migrations.
 @Injectable()
@@ -16,7 +16,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('DB_USER'),
       password: this.configService.get<string>('DB_PASSWORD'),
       database: this.configService.get<string>('DB_NAME'),
-      entities: [User, Task],
+      entities: [User, Task, TaskTime],
       synchronize: false,
     };
   }

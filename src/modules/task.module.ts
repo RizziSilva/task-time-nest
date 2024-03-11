@@ -8,9 +8,16 @@ import { TaskValidator } from '@validators';
 import { TaskMapper } from '@mappers';
 import { AuthModule } from './auth.module';
 import { UserModule } from './user.module';
+import { TaskTimeModule } from './taskTime.module';
 
 @Module({
-  imports: [UserModule, AuthModule, TypeOrmModule.forFeature([Task]), JwtModule.register({})],
+  imports: [
+    UserModule,
+    AuthModule,
+    TaskTimeModule,
+    TypeOrmModule.forFeature([Task]),
+    JwtModule.register({}),
+  ],
   controllers: [TaskController],
   providers: [TaskService, TaskMapper, TaskValidator],
 })
