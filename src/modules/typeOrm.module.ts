@@ -18,6 +18,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get<string>('DB_NAME'),
       entities: [User, Task, TaskTime],
       synchronize: false,
+      timezone: 'Z',
     };
   }
 }

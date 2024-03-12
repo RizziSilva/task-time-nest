@@ -5,3 +5,4 @@ export { CreateUserException } from './user/create.exception';
 export { CreateTaskException } from './task/create.exception';
 export { UpdateTaskException } from './task/update.exception';
 export { CreateTaskTimeException } from './taskTime/create.exception';
+export { UpdateTaskTimeException } from './taskTime/update.exception';

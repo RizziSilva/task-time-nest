@@ -58,7 +58,7 @@ describe('TaskService Tests', () => {
         },
         {
           provide: getRepositoryToken(TaskTime),
-          useValue: { save: jest.fn() },
+          useValue: {},
         },
       ],
     }).compile();
