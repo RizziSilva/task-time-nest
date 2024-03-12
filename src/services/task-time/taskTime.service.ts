@@ -39,7 +39,7 @@ export class TaskTimeService {
     taskTimeId: number,
   ): Promise<UpdateTaskTimeResponseDto> {
     this.taskTimeValidator.validateTaskTimeUpdateRequest(request, taskTimeId);
-    const currentTaskTime: TaskTime = await this.findOnById(taskTimeId);
+    const currentTaskTime: TaskTime = await this.findOneById(taskTimeId);
 
     if (!currentTaskTime)
       throw new UpdateTaskTimeException(`${UPDATE_TASK_TIME_MISSING_TASK_TIME}${taskTimeId}.`);
@@ -56,7 +56,7 @@ export class TaskTimeService {
     return response;
   }
 
-  async findOnById(id: number): Promise<TaskTime> {
+  async findOneById(id: number): Promise<TaskTime> {
     const taskTime: TaskTime = await this.taskTimeRepository.findOneBy({ id });
 
     return taskTime;
@@ -64,7 +64,7 @@ export class TaskTimeService {
 
   async updateById(entity: TaskTime, id: number): Promise<TaskTime> {
     await this.taskTimeRepository.update({ id }, entity);
-    const taskTime: TaskTime = await this.findOnById(id);
+    const taskTime: TaskTime = await this.findOneById(id);
 
     return taskTime;
   }
