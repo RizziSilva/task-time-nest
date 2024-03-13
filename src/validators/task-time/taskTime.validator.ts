@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import {
   CREATE_TASK_TIME_MISSING_TASK_ID,
+  DELETE_TASK_TIME_MISSING_ID,
   UPDATE_TASK_TIME_MISSING_ENDED,
   UPDATE_TASK_TIME_MISSING_INITIATED,
   UPDATE_TASK_TIME_MISSING_TASK_TIME_ID,
   UPDATE_TASK_TIME_TIMES_RELATION,
 } from '@constants';
 import { CreateTaskTimeRequestDto, UpdateTaskTimeRequestDto } from '@dtos';
-import { CreateTaskTimeException, UpdateTaskTimeException } from '@exceptions';
+import {
+  CreateTaskTimeException,
+  DeleteTaskTimeException,
+  UpdateTaskTimeException,
+} from '@exceptions';
 import { TaskTime } from '@entities';
 
 @Injectable()
@@ -32,5 +37,9 @@ export class TaskTimeValidator {
     const isInitialOlder: boolean = initiatedAsData < endedAsData;
 
     if (!isInitialOlder) throw new UpdateTaskTimeException(UPDATE_TASK_TIME_TIMES_RELATION);
+  }
+
+  validateTaskTimeDelete(taskTimeId: number): void {
+    if (!taskTimeId) throw new DeleteTaskTimeException(DELETE_TASK_TIME_MISSING_ID);
   }
 }

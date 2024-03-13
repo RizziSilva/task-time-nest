@@ -13,3 +13,9 @@ export const UPDATE_TASK_TIME_MISSING_ENDED = 'Necessário informar o tempo de t
 export const UPDATE_TASK_TIME_TIMES_RELATION = 'Tempo de início deve ser anterior ao de fim.';
 
 export const UPDATE_TASK_TIME_MISSING_TASK_TIME = 'Não foi encontrado o task time com id ';
+
+export const DELETE_TASK_TIME_MISSING_ID = 'Necessário informar o id do task time.';
+
+export const DELETE_TASK_DEFAULT_MESSAGE = 'Houve um erro ao deletar o task time.';
+
+export const DELETE_TASK_TIME_NOT_FOUND = 'Não foi encontrado o task time com id ';

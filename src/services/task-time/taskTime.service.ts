@@ -11,8 +11,8 @@ import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
 import { calculateDifferenceInSeconds } from '@utils';
-import { UpdateTaskTimeException } from '@exceptions';
-import { UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
+import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
+import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
 
 @Injectable()
 export class TaskTimeService {
@@ -54,6 +54,16 @@ export class TaskTimeService {
       this.taskTimeMapper.fromTaskTimeToUpdateTaskTimeResponse(entityResponse);
 
     return response;
+  }
+
+  async deleteTaskTime(taskTimeId: number): Promise<void> {
+    this.taskTimeValidator.validateTaskTimeDelete(taskTimeId);
+
+    const taskTime: TaskTime = await this.findOneById(taskTimeId);
+
+    if (!taskTime) throw new DeleteTaskTimeException(`${DELETE_TASK_TIME_NOT_FOUND}${taskTimeId}.`);
+
+    await this.taskTimeRepository.delete({ id: taskTimeId });
   }
 
   async findOneById(id: number): Promise<TaskTime> {

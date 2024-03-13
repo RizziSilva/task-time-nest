@@ -1,7 +1,12 @@
 import { CreateTaskTimeRequestDto, UpdateTaskTimeRequestDto } from '@dtos';
-import { CreateTaskTimeException, UpdateTaskTimeException } from '@exceptions';
+import {
+  CreateTaskTimeException,
+  DeleteTaskTimeException,
+  UpdateTaskTimeException,
+} from '@exceptions';
 import {
   CREATE_TASK_TIME_MISSING_TASK_ID,
+  DELETE_TASK_TIME_MISSING_ID,
   UPDATE_TASK_TIME_MISSING_ENDED,
   UPDATE_TASK_TIME_MISSING_INITIATED,
   UPDATE_TASK_TIME_MISSING_TASK_TIME_ID,
@@ -120,6 +125,29 @@ describe('TaskTime validator tests', () => {
 
       expect(act).toThrow(UpdateTaskTimeException);
       expect(act).toThrow(UPDATE_TASK_TIME_TIMES_RELATION);
+    });
+  });
+
+  describe('validateTaskTimeDelete tests', () => {
+    it('Validate delete task time shouldnt throw', () => {
+      const taskTimeId: number = 1;
+
+      const act: Function = () => {
+        validator.validateTaskTimeDelete(taskTimeId);
+      };
+
+      expect(act).not.toThrow();
+    });
+
+    it('Validate delete task time missing task time id should throw', () => {
+      const taskTimeId: number = null;
+
+      const act: Function = () => {
+        validator.validateTaskTimeDelete(taskTimeId);
+      };
+
+      expect(act).toThrow(DeleteTaskTimeException);
+      expect(act).toThrow(DELETE_TASK_TIME_MISSING_ID);
     });
   });
 });

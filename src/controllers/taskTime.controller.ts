@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -38,5 +39,12 @@ export class TaskTimeController {
     @Body() request: CreateTaskTimeRequestDto,
   ): Promise<CreateTaskTimeResponseDto> {
     return await this.taskTimeService.createTaskTime(request);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete(':taskTimeId')
+  async deleteTaskTime(@Param('taskTimeId') taskTimeId: number): Promise<void> {
+    await this.taskTimeService.deleteTaskTime(taskTimeId);
   }
 }
