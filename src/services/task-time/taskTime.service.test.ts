@@ -2,7 +2,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { TaskTimeController } from '@controllers';
 import { TaskTime, User } from '@entities';
 import { AuthMapper, TaskTimeMapper, UserMapper } from '@mappers';
@@ -14,8 +14,8 @@ import {
   UpdateTaskTimeResponseDto,
 } from '@dtos';
 import { calculateDifferenceInSeconds } from '@utils';
-import { UpdateTaskTimeException } from '@exceptions';
-import { UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
+import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
+import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
 import { TaskTimeService } from './taskTime.service';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
@@ -51,7 +51,7 @@ describe('TaskTime service tests', () => {
         },
         {
           provide: getRepositoryToken(TaskTime),
-          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn() },
+          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn(), delete: jest.fn() },
         },
       ],
     }).compile();
@@ -133,6 +133,40 @@ describe('TaskTime service tests', () => {
 
       expect(act).rejects.toThrow(UpdateTaskTimeException);
       expect(act).rejects.toThrow(`${UPDATE_TASK_TIME_MISSING_TASK_TIME}${taskTimeId}.`);
+    });
+  });
+
+  describe('deleteTaskTime tests', () => {
+    it('Delete a task time with success', async () => {
+      const taskTimeId: number = 1;
+      const taskTime: TaskTime = new TaskTime();
+      const deleteResponse: DeleteResult = new DeleteResult();
+
+      jest.spyOn(taskTimeValidator, 'validateTaskTimeDelete').mockImplementationOnce(() => {});
+      jest.spyOn(taskTimeService, 'findOneById').mockResolvedValueOnce(taskTime);
+      jest.spyOn(taskTimeRepository, 'delete').mockResolvedValueOnce(deleteResponse);
+
+      await taskTimeService.deleteTaskTime(taskTimeId);
+
+      expect(taskTimeValidator.validateTaskTimeDelete).toHaveBeenCalledWith(taskTimeId);
+      expect(taskTimeService.findOneById).toHaveBeenCalledWith(taskTimeId);
+      expect(taskTimeRepository.delete).toHaveBeenCalledWith({ id: taskTimeId });
+    });
+
+    it('Delete a task without finded task time should throw', async () => {
+      const taskTimeId: number = 1;
+
+      jest.spyOn(taskTimeValidator, 'validateTaskTimeDelete').mockImplementationOnce(() => {});
+      jest.spyOn(taskTimeService, 'findOneById').mockResolvedValueOnce(null);
+
+      const act: Function = async () => {
+        await taskTimeService.deleteTaskTime(taskTimeId);
+      };
+
+      expect(act).rejects.toThrow(DeleteTaskTimeException);
+      expect(act).rejects.toThrow(DELETE_TASK_TIME_NOT_FOUND);
+      expect(taskTimeValidator.validateTaskTimeDelete).toHaveBeenCalledWith(taskTimeId);
+      expect(taskTimeService.findOneById).toHaveBeenCalledWith(taskTimeId);
     });
   });
 
