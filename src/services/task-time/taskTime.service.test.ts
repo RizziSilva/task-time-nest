@@ -164,7 +164,7 @@ describe('TaskTime service tests', () => {
       };
 
       expect(act).rejects.toThrow(DeleteTaskTimeException);
-      expect(act).rejects.toThrow(DELETE_TASK_TIME_NOT_FOUND);
+      expect(act).rejects.toThrow(`${DELETE_TASK_TIME_NOT_FOUND}${taskTimeId}.`);
       expect(taskTimeValidator.validateTaskTimeDelete).toHaveBeenCalledWith(taskTimeId);
       expect(taskTimeService.findOneById).toHaveBeenCalledWith(taskTimeId);
     });
