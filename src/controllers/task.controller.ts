@@ -42,4 +42,11 @@ export class TaskController {
   ): Promise<UpdateTaskResponseDto> {
     return await this.taskService.update(taskId, request);
   }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put(':taskId')
+  async deleteTask(@Param('taskId') taskId: number): Promise<void> {
+    await this.taskService.deleteTask(taskId);
+  }
 }

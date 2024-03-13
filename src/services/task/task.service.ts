@@ -12,9 +12,9 @@ import {
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TaskValidator } from '@validators';
-import { UpdateTaskException } from '@exceptions';
+import { DeleteTaskException, UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
-import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
+import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { UpdateTask } from '@interfaces';
 import { TaskTimeService } from '../task-time/taskTime.service';
 
@@ -61,6 +61,16 @@ export class TaskService {
       this.taskMapper.fromTaskToTaskUpdateResponse(updatedTask);
 
     return response;
+  }
+
+  async deleteTask(taskId: number): Promise<void> {
+    this.taskValidator.validateDeleteTask(taskId);
+
+    const task: Task = await this.findOneById(taskId);
+
+    if (!task) throw new DeleteTaskException(DELETE_TASK_NOT_FOUND);
+
+    await this.taskRepository.delete({ id: taskId });
   }
 
   async findOneById(id: number): Promise<Task> {

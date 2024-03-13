@@ -11,3 +11,9 @@ export const UPDATE_TASK_EXCEPTION_DEFAULT_MESSAGE = 'Erro inesperado ao atualiz
 export const UPDATE_TASK_EXCEPTION_MISSING_TASK_ID = 'O id da tarefa deve ser informado';
 
 export const UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND = 'A task informado não foi encontrada.';
+
+export const DELETE_TASK_DEFAULT_MESSAGE = 'Erro ao deletar a tarefa.';
+
+export const DELETE_TASK_MISSING_ID = 'Necessário informar o id da tarefa.';
+
+export const DELETE_TASK_NOT_FOUND = 'Tarefa não encontrado com o id ';
