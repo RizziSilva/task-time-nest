@@ -16,6 +16,6 @@ export const UPDATE_TASK_TIME_MISSING_TASK_TIME = 'Não foi encontrado o task ti
 
 export const DELETE_TASK_TIME_MISSING_ID = 'Necessário informar o id do task time.';
 
-export const DELETE_TASK_DEFAULT_MESSAGE = 'Houve um erro ao deletar o task time.';
+export const DELETE_TASK_TIME_DEFAULT_MESSAGE = 'Houve um erro ao deletar o task time.';
 
 export const DELETE_TASK_TIME_NOT_FOUND = 'Não foi encontrado o task time com id ';

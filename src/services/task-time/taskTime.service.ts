@@ -66,6 +66,10 @@ export class TaskTimeService {
     await this.taskTimeRepository.delete({ id: taskTimeId });
   }
 
+  async deleteAllTaskTimeByTaskId(taskId: number): Promise<void> {
+    await this.taskTimeRepository.delete({ taskId });
+  }
+
   async findOneById(id: number): Promise<TaskTime> {
     const taskTime: TaskTime = await this.taskTimeRepository.findOneBy({ id });
 

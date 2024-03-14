@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { TaskTimeValidator, TaskValidator, UserValidator } from '@validators';
 import { AuthMapper, TaskMapper, TaskTimeMapper, UserMapper } from '@mappers';
 import { TaskController } from '@controllers';
@@ -17,8 +17,8 @@ import {
   UpdateTaskResponseDto,
 } from '@dtos';
 import { UpdateTask } from '@interfaces';
-import { UpdateTaskException } from '@exceptions';
-import { UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
+import { DeleteTaskException, UpdateTaskException } from '@exceptions';
+import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
 import { TaskService } from './task.service';
@@ -54,7 +54,7 @@ describe('TaskService Tests', () => {
         },
         {
           provide: getRepositoryToken(Task),
-          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn() },
+          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn(), delete: jest.fn() },
         },
         {
           provide: getRepositoryToken(TaskTime),
@@ -162,6 +162,41 @@ describe('TaskService Tests', () => {
 
       expect(act).rejects.toThrow(UpdateTaskException);
       expect(act).rejects.toThrow(UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND);
+    });
+  });
+
+  describe('deleteTask tests', () => {
+    it('Delete a task and its task times with success', async () => {
+      const taskId: number = 1;
+      const task: Task = new Task();
+      const deleteResponse: DeleteResult = new DeleteResult();
+
+      jest.spyOn(taskValidator, 'validateDeleteTask').mockImplementationOnce(() => {});
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
+      jest.spyOn(taskTimeService, 'deleteAllTaskTimeByTaskId').mockImplementation(async () => {});
+      jest.spyOn(taskRepository, 'delete').mockResolvedValueOnce(deleteResponse);
+
+      await taskService.deleteTask(taskId);
+
+      expect(taskValidator.validateDeleteTask).toHaveBeenCalledWith(taskId);
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
+      expect(taskTimeService.deleteAllTaskTimeByTaskId).toHaveBeenCalledWith(taskId);
+      expect(taskRepository.delete).toHaveBeenCalledWith({ id: taskId });
+    });
+    it('Delete a task without finded task throw error', async () => {
+      const taskId: number = 2;
+
+      jest.spyOn(taskValidator, 'validateDeleteTask').mockImplementationOnce(() => {});
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(null);
+
+      const act: Function = async () => {
+        await taskService.deleteTask(taskId);
+      };
+
+      expect(act).rejects.toThrow(DeleteTaskException);
+      expect(act).rejects.toThrow(DELETE_TASK_NOT_FOUND);
+      expect(taskValidator.validateDeleteTask).toHaveBeenCalledWith(taskId);
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
     });
   });
 

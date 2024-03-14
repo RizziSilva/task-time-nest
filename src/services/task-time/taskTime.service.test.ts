@@ -170,6 +170,20 @@ describe('TaskTime service tests', () => {
     });
   });
 
+  describe('deleteAllTaskTimeByTaskId tests', () => {
+    it('Delete task times by task id with success', async () => {
+      const taskId: number = 1;
+      const deleteResponse: DeleteResult = new DeleteResult();
+
+      jest.spyOn(taskTimeRepository, 'delete').mockResolvedValueOnce(deleteResponse);
+
+      await taskTimeService.deleteAllTaskTimeByTaskId(taskId);
+
+      expect(taskTimeRepository.delete).toHaveBeenCalledTimes(1);
+      expect(taskTimeRepository.delete).toHaveBeenCalledWith({ taskId });
+    });
+  });
+
   describe('findOneById tests', () => {
     it('Find task time with success', async () => {
       const taskTimeId: number = 1;
