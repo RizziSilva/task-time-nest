@@ -70,6 +70,7 @@ export class TaskService {
 
     if (!task) throw new DeleteTaskException(DELETE_TASK_NOT_FOUND);
 
+    await this.taskTimeService.deleteAllTaskTimeByTaskId(taskId);
     await this.taskRepository.delete({ id: taskId });
   }
 

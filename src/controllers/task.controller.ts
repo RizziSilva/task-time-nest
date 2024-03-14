@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -45,7 +46,7 @@ export class TaskController {
 
   @UseGuards(UserJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Put(':taskId')
+  @Delete(':taskId')
   async deleteTask(@Param('taskId') taskId: number): Promise<void> {
     await this.taskService.deleteTask(taskId);
   }
