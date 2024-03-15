@@ -1,4 +1,4 @@
-import { TimesDto } from 'src/dto/task-time';
+import { TimesDto } from './times.dto';
 
 export class CreateTaskResponseDto {
   title: string;

@@ -8,6 +8,8 @@ import {
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskRequestDto,
+  GetPaginatedTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -72,6 +74,10 @@ export class TaskService {
 
     await this.taskTimeService.deleteAllTaskTimeByTaskId(taskId);
     await this.taskRepository.delete({ id: taskId });
+  }
+
+  async getPaginatedTasks(request: GetPaginatedTaskRequestDto): Promise<string> {
+    return this.taskTimeService.findClosestDayByUserId(request.userId);
   }
 
   async findOneById(id: number): Promise<Task> {
