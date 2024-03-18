@@ -5,12 +5,13 @@ import {
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskResponseDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { Task } from '@entities';
-import { UpdateTask } from '@interfaces';
+import { TaskAndTime, UpdateTask } from '@interfaces';
 import { DATE_TIME_FORMAT } from '@constants';
 
 @Injectable()
@@ -87,5 +88,13 @@ export class TaskMapper {
     taskTimeRequest.taskId = taskId;
 
     return taskTimeRequest;
+  }
+
+  formTasksAndTimesToPaginatedTasksResponse(
+    tasksAndTimes: Array<TaskAndTime>,
+  ): GetPaginatedTaskResponseDto {
+    const response: GetPaginatedTaskResponseDto = new GetPaginatedTaskResponseDto();
+
+    return response;
   }
 }

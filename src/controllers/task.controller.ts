@@ -58,7 +58,7 @@ export class TaskController {
   @UseGuards(UserJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async getTask(@Query() request: GetPaginatedTaskRequestDto): Promise<string> {
-    return await this.taskService.getPaginatedTasks(request);
+  async getTask(@Query() request: GetPaginatedTaskRequestDto): Promise<void> {
+    await this.taskService.getPaginatedTasks(request);
   }
 }

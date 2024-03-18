@@ -82,12 +82,4 @@ export class TaskTimeService {
 
     return taskTime;
   }
-
-  async findClosestDayByUserId(userId: number): Promise<string> {
-    return await this.taskTimeRepository.manager.query(`
-      select MAX(tt.ended_at) from taskTime tt 
-      inner join task t on tt.id_task = t.id 
-      WHERE t.id_user = ${userId}
-    `);
-  }
 }
