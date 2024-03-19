@@ -5,6 +5,6 @@ export class TasksDto {
   title: string;
   description: string;
   link: string;
-  times: Array<GetPaginatedTimesDto>;
-  totalTimeSpent: number;
+  times: Array<GetPaginatedTimesDto> = [];
+  totalTimeSpent: number = 0;
 }

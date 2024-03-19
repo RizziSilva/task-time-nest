@@ -77,12 +77,23 @@ export class TaskService {
     await this.taskRepository.delete({ id: taskId });
   }
 
-  async getPaginatedTasks(request: GetPaginatedTaskRequestDto): Promise<void> {
+  async getPaginatedTasks(
+    request: GetPaginatedTaskRequestDto,
+  ): Promise<GetPaginatedTaskResponseDto> {
     const pagination: TasksPagination = getTaskOffsetByPage(request.page);
     const taskAndTimes: Array<TaskAndTime> = await this.getTasksAndTaskTimesByUserAndPage(
       request.userId,
       pagination,
     );
+    const userNumberOfTasks: number = await this.countTasksByUserId(request.userId);
+    const response: GetPaginatedTaskResponseDto =
+      this.taskMapper.formTasksAndTimesToPaginatedTasksResponse(
+        taskAndTimes,
+        request.page,
+        userNumberOfTasks,
+      );
+
+    return response;
   }
 
   async findOneById(id: number): Promise<Task> {
@@ -101,11 +112,17 @@ export class TaskService {
     pagination: TasksPagination,
   ): Promise<Array<TaskAndTime>> {
     return await this.taskRepository.manager.query(`
-      select t.id as taskId, t.title, t.description, t.link, tt.time_spent, tt.id as taskTimeId, tt.initiated_at, tt.ended_at from taskTime tt
+      select t.id as taskId, t.title, t.description, t.link, tt.time_spent as timeSpent, tt.id as taskTimeId, tt.initiated_at as initiatedAt, tt.ended_at as endedAt from taskTime tt
       inner join task t on t.id = tt.id_task
       WHERE t.id_user = ${userId} 
       ORDER BY t.created_at DESC
       LIMIT ${pagination.initial}, ${pagination.end};
     `);
+  }
+
+  async countTasksByUserId(idUser: number): Promise<number> {
+    const numberOfTasks: number = await this.taskRepository.count({ where: [{ idUser }] });
+
+    return numberOfTasks;
   }
 }

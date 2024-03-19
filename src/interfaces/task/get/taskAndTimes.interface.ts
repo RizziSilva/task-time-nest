@@ -1,9 +1,9 @@
 export class TaskAndTime {
   taskId: number;
   taskTimeId: number;
-  ended_at: string;
-  initiated_at: string;
-  time_spent: number;
+  endedAt: string;
+  initiatedAt: string;
+  timeSpent: number;
   link: string;
   description: string;
   title: string;
