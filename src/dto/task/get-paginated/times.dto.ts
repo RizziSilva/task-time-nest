@@ -1,5 +1,5 @@
 export class GetPaginatedTimesDto {
   initiatedAt: string;
-  endedt: string;
+  endedAt: string;
   totalTimeSpent: number;
 }

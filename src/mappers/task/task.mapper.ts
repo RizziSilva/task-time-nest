@@ -7,6 +7,7 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
+  TasksDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
@@ -14,7 +15,6 @@ import {
 import { Task } from '@entities';
 import { TaskAndTime, UpdateTask } from '@interfaces';
 import { DATE_TIME_FORMAT, NUMBER_OF_ENTRIES_PER_PAGE } from '@constants';
-import { TasksDto } from 'src/dto/task/get-paginated/task.dto';
 
 @Injectable()
 export class TaskMapper {
@@ -101,12 +101,12 @@ export class TaskMapper {
     const responseTasks: Array<TasksDto> = new Array<TasksDto>();
 
     tasksAndTimes.forEach((task) => {
-      const alreadyBuildedTasksDto: TasksDto = responseTasks.find(
+      const alreadyBuiltTasksDto: TasksDto = responseTasks.find(
         (element) => element.id === task.taskId,
       );
-      const hasFindedTask: boolean = !!alreadyBuildedTasksDto;
+      const hasFindedTask: boolean = !!alreadyBuiltTasksDto;
       const currentTask: TasksDto = hasFindedTask
-        ? alreadyBuildedTasksDto
+        ? alreadyBuiltTasksDto
         : this.fromTaskAndTimesToTasksDto(task);
       const getPaginatedTimes: GetPaginatedTimesDto =
         this.fromTaskAndTimesToGetPaginatedTimesDto(task);
@@ -120,7 +120,7 @@ export class TaskMapper {
     const totalTasksReturned: number = page * NUMBER_OF_ENTRIES_PER_PAGE;
 
     response.page = page;
-    response.isLastPage = totalTasksReturned > userNumberOfTasks;
+    response.isLastPage = totalTasksReturned >= userNumberOfTasks;
     response.tasks = responseTasks;
 
     return response;
@@ -129,7 +129,7 @@ export class TaskMapper {
   private fromTaskAndTimesToGetPaginatedTimesDto(taskAndTimes: TaskAndTime): GetPaginatedTimesDto {
     const response: GetPaginatedTimesDto = new GetPaginatedTimesDto();
 
-    response.endedt = taskAndTimes.endedAt;
+    response.endedAt = taskAndTimes.endedAt;
     response.initiatedAt = taskAndTimes.initiatedAt;
     response.totalTimeSpent = taskAndTimes.timeSpent;
 
