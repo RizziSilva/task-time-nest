@@ -7,13 +7,15 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
+  GetTaskResponseDto,
+  GetTaskTimes,
   TasksDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { Task } from '@entities';
-import { TaskAndTime, UpdateTask } from '@interfaces';
+import { GetTask, TaskAndTime, UpdateTask } from '@interfaces';
 import { DATE_TIME_FORMAT, NUMBER_OF_ENTRIES_PER_PAGE } from '@constants';
 
 @Injectable()
@@ -122,6 +124,37 @@ export class TaskMapper {
     response.page = page;
     response.isLastPage = totalTasksReturned >= userNumberOfTasks;
     response.tasks = responseTasks;
+
+    return response;
+  }
+
+  fromTaskToGetTaskResponse(tasks: Array<GetTask>): GetTaskResponseDto {
+    const response: GetTaskResponseDto = new GetTaskResponseDto();
+
+    tasks.forEach((task, index) => {
+      const isFirstInteraction: boolean = index === 0;
+
+      if (isFirstInteraction) {
+        response.createdAt = task.createdAt;
+        response.description = task.description;
+        response.id = task.taskId;
+        response.idUser = task.idUser;
+        response.link = task.link;
+        response.title = task.title;
+        response.updatedAt = task.updatedAt;
+      }
+
+      response.totalTimeSpent += task.timeSpent;
+
+      const time: GetTaskTimes = new GetTaskTimes();
+
+      time.totalTimeSpent = task.timeSpent;
+      time.id = task.taskTimeId;
+      time.endedAt = task.endedAt;
+      time.initiatedAt = task.initiatedAt;
+
+      response.times.push(time);
+    });
 
     return response;
   }

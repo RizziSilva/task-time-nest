@@ -17,3 +17,7 @@ export const DELETE_TASK_DEFAULT_MESSAGE = 'Erro ao deletar a tarefa.';
 export const DELETE_TASK_MISSING_ID = 'Necessário informar o id da tarefa.';
 
 export const DELETE_TASK_NOT_FOUND = 'Tarefa não encontrado com o id ';
+
+export const GET_TASK_DEFAULT_MESSAGE = 'Erro ao buscar a tarefa.';
+
+export const GET_TASK_NOT_FOUND = 'Não foi encontrada a tarefa com o id ';

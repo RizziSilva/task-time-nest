@@ -18,6 +18,7 @@ import {
   CreateTaskResponseDto,
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
+  GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -57,10 +58,17 @@ export class TaskController {
 
   @UseGuards(UserJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Get()
-  async getTask(
+  @Get('/paginated')
+  async getTasks(
     @Query() request: GetPaginatedTaskRequestDto,
   ): Promise<GetPaginatedTaskResponseDto> {
     return await this.taskService.getPaginatedTasks(request);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get(':taskId')
+  async getTask(@Param('taskId') taskId: number): Promise<GetTaskResponseDto> {
+    return this.taskService.getTask(taskId);
   }
 }
