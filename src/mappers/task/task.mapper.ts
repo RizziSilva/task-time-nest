@@ -5,13 +5,16 @@ import {
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskResponseDto,
+  GetPaginatedTimesDto,
+  TasksDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { Task } from '@entities';
-import { UpdateTask } from '@interfaces';
-import { DATE_TIME_FORMAT } from '@constants';
+import { TaskAndTime, UpdateTask } from '@interfaces';
+import { DATE_TIME_FORMAT, NUMBER_OF_ENTRIES_PER_PAGE } from '@constants';
 
 @Injectable()
 export class TaskMapper {
@@ -87,5 +90,60 @@ export class TaskMapper {
     taskTimeRequest.taskId = taskId;
 
     return taskTimeRequest;
+  }
+
+  formTasksAndTimesToPaginatedTasksResponse(
+    tasksAndTimes: Array<TaskAndTime>,
+    page: number,
+    userNumberOfTasks: number,
+  ): GetPaginatedTaskResponseDto {
+    const response: GetPaginatedTaskResponseDto = new GetPaginatedTaskResponseDto();
+    const responseTasks: Array<TasksDto> = new Array<TasksDto>();
+
+    tasksAndTimes.forEach((task) => {
+      const alreadyBuiltTasksDto: TasksDto = responseTasks.find(
+        (element) => element.id === task.taskId,
+      );
+      const hasFindedTask: boolean = !!alreadyBuiltTasksDto;
+      const currentTask: TasksDto = hasFindedTask
+        ? alreadyBuiltTasksDto
+        : this.fromTaskAndTimesToTasksDto(task);
+      const getPaginatedTimes: GetPaginatedTimesDto =
+        this.fromTaskAndTimesToGetPaginatedTimesDto(task);
+
+      currentTask.times.push(getPaginatedTimes);
+      currentTask.totalTimeSpent += getPaginatedTimes.totalTimeSpent;
+
+      if (!hasFindedTask) responseTasks.push(currentTask);
+    });
+
+    const totalTasksReturned: number = page * NUMBER_OF_ENTRIES_PER_PAGE;
+
+    response.page = page;
+    response.isLastPage = totalTasksReturned >= userNumberOfTasks;
+    response.tasks = responseTasks;
+
+    return response;
+  }
+
+  private fromTaskAndTimesToGetPaginatedTimesDto(taskAndTimes: TaskAndTime): GetPaginatedTimesDto {
+    const response: GetPaginatedTimesDto = new GetPaginatedTimesDto();
+
+    response.endedAt = taskAndTimes.endedAt;
+    response.initiatedAt = taskAndTimes.initiatedAt;
+    response.totalTimeSpent = taskAndTimes.timeSpent;
+
+    return response;
+  }
+
+  private fromTaskAndTimesToTasksDto(taskAndTimes: TaskAndTime): TasksDto {
+    const response: TasksDto = new TasksDto();
+
+    response.description = taskAndTimes.description;
+    response.link = taskAndTimes.link;
+    response.title = taskAndTimes.title;
+    response.id = taskAndTimes.taskId;
+
+    return response;
   }
 }

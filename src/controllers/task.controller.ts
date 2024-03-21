@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserJwtAuthGuard } from '@guards';
@@ -14,6 +16,8 @@ import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
   CreateTaskResponseDto,
+  GetPaginatedTaskRequestDto,
+  GetPaginatedTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -49,5 +53,14 @@ export class TaskController {
   @Delete(':taskId')
   async deleteTask(@Param('taskId') taskId: number): Promise<void> {
     await this.taskService.deleteTask(taskId);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async getTask(
+    @Query() request: GetPaginatedTaskRequestDto,
+  ): Promise<GetPaginatedTaskResponseDto> {
+    return await this.taskService.getPaginatedTasks(request);
   }
 }

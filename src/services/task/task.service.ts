@@ -8,6 +8,8 @@ import {
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskRequestDto,
+  GetPaginatedTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
@@ -15,7 +17,8 @@ import { TaskValidator } from '@validators';
 import { DeleteTaskException, UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
 import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
-import { UpdateTask } from '@interfaces';
+import { TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
+import { getTaskOffsetByPage } from '@utils';
 import { TaskTimeService } from '../task-time/taskTime.service';
 
 @Injectable()
@@ -74,6 +77,25 @@ export class TaskService {
     await this.taskRepository.delete({ id: taskId });
   }
 
+  async getPaginatedTasks(
+    request: GetPaginatedTaskRequestDto,
+  ): Promise<GetPaginatedTaskResponseDto> {
+    const pagination: TasksPagination = getTaskOffsetByPage(request.page);
+    const taskAndTimes: Array<TaskAndTime> = await this.getTasksAndTaskTimesByUserAndPage(
+      request.userId,
+      pagination,
+    );
+    const userNumberOfTasks: number = await this.countTasksByUserId(request.userId);
+    const response: GetPaginatedTaskResponseDto =
+      this.taskMapper.formTasksAndTimesToPaginatedTasksResponse(
+        taskAndTimes,
+        request.page,
+        userNumberOfTasks,
+      );
+
+    return response;
+  }
+
   async findOneById(id: number): Promise<Task> {
     return await this.taskRepository.findOneBy({ id: id });
   }
@@ -83,5 +105,24 @@ export class TaskService {
     const task: Task = await this.findOneById(id);
 
     return task;
+  }
+
+  async getTasksAndTaskTimesByUserAndPage(
+    userId: number,
+    pagination: TasksPagination,
+  ): Promise<Array<TaskAndTime>> {
+    return await this.taskRepository.manager.query(`
+      select t.id as taskId, t.title, t.description, t.link, tt.time_spent as timeSpent, tt.id as taskTimeId, tt.initiated_at as initiatedAt, tt.ended_at as endedAt from taskTime tt
+      inner join task t on t.id = tt.id_task
+      WHERE t.id_user = ${userId} 
+      ORDER BY t.created_at DESC
+      LIMIT ${pagination.initial}, ${pagination.end};
+    `);
+  }
+
+  async countTasksByUserId(idUser: number): Promise<number> {
+    const numberOfTasks: number = await this.taskRepository.count({ where: [{ idUser }] });
+
+    return numberOfTasks;
   }
 }
