@@ -10,14 +10,19 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
+  GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TaskValidator } from '@validators';
-import { DeleteTaskException, UpdateTaskException } from '@exceptions';
+import { DeleteTaskException, GetTaskException, UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
-import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
-import { TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
+import {
+  DELETE_TASK_NOT_FOUND,
+  GET_TASK_NOT_FOUND,
+  UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
+} from '@constants';
+import { GetTask, TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
 import { getTaskOffsetByPage } from '@utils';
 import { TaskTimeService } from '../task-time/taskTime.service';
 
@@ -96,6 +101,16 @@ export class TaskService {
     return response;
   }
 
+  async getTask(taskId: number): Promise<GetTaskResponseDto> {
+    const task: Array<GetTask> = await this.getTaskAndTimesByTaskId(taskId);
+
+    if (!task.length) throw new GetTaskException(`${GET_TASK_NOT_FOUND} ${taskId}.`);
+
+    const response: GetTaskResponseDto = this.taskMapper.fromTaskToGetTaskResponse(task);
+
+    return response;
+  }
+
   async findOneById(id: number): Promise<Task> {
     return await this.taskRepository.findOneBy({ id: id });
   }
@@ -105,6 +120,15 @@ export class TaskService {
     const task: Task = await this.findOneById(id);
 
     return task;
+  }
+
+  async getTaskAndTimesByTaskId(taskId: number): Promise<Array<GetTask>> {
+    return await this.taskRepository.manager.query(`
+      select t.id as taskId, t.created_at as createdAt, t.updated_at as updatedAt, t.id_user as idUser, t.title, t.description, t.link, tt.time_spent as timeSpent, tt.id as taskTimeId, tt.initiated_at as initiatedAt, tt.ended_at as endedAt from taskTime tt
+      right join task t on t.id = tt.id_task
+      WHERE t.id = ${taskId} 
+      ORDER BY tt.created_at DESC
+    `);
   }
 
   async getTasksAndTaskTimesByUserAndPage(
