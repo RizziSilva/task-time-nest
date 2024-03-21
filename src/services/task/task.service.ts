@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task } from '@entities';
+import { Task, TaskTime } from '@entities';
 import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
@@ -50,6 +50,27 @@ export class TaskService {
 
     return response;
   }
+
+  // async create(
+  //   user: AuthLoginResponseDto,
+  //   request: CreateTaskRequestDto,
+  // ): Promise<CreateTaskResponseDto> {
+  //   this.taskValidator.validateCreateTaskRequest(request);
+
+  //   const newTask: Task = this.taskMapper.fromCreateRequestToTask(user.id, request);
+  //   const entityResponse: Task = await this.taskRepository.save(newTask);
+  //   const taskTimeRequest: CreateTaskTimeRequestDto =
+  //     this.taskMapper.fromCreateRequestToCreateTaskTimeRequest(request, entityResponse.id);
+  //   const taskTime: CreateTaskTimeResponseDto = await this.taskTimeService.createTaskTime(
+  //     taskTimeRequest,
+  //   );
+  //   const response: CreateTaskResponseDto = this.taskMapper.fromTaskAndTaskTimeToCreateTaskResponse(
+  //     entityResponse,
+  //     taskTime,
+  //   );
+
+  //   return response;
+  // }
 
   async update(taskId: number, request: UpdateTaskRequestDto): Promise<UpdateTaskResponseDto> {
     this.taskValidator.validateUpdateTaskRequest(taskId);

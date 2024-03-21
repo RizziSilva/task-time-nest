@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Task } from './task.entity';
 
 @Entity({ name: 'taskTime' })
 export class TaskTime {
@@ -22,4 +23,7 @@ export class TaskTime {
 
   @Column({ name: 'time_spent' })
   timeSpent: number;
+
+  @ManyToOne(() => Task, (task) => task.times)
+  task: Task;
 }

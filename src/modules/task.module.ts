@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { TaskController } from '@controllers';
@@ -12,13 +12,14 @@ import { TaskTimeModule } from './taskTime.module';
 
 @Module({
   imports: [
+    forwardRef(() => TaskTimeModule),
     UserModule,
     AuthModule,
-    TaskTimeModule,
     TypeOrmModule.forFeature([Task]),
     JwtModule.register({}),
   ],
   controllers: [TaskController],
   providers: [TaskService, TaskMapper, TaskValidator],
+  exports: [TaskService],
 })
 export class TaskModule {}

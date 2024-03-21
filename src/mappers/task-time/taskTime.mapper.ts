@@ -5,19 +5,23 @@ import {
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
-import { TaskTime } from '@entities';
+import { Task, TaskTime } from '@entities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 @Injectable()
 export class TaskTimeMapper {
-  fromCreateTaskTimeToTaskTime(request: CreateTaskTimeRequestDto, timeSpent: number): TaskTime {
+  fromCreateTaskTimeToTaskTime(
+    request: CreateTaskTimeRequestDto,
+    timeSpent: number,
+    task: Task,
+  ): TaskTime {
     const taskTime: TaskTime = new TaskTime();
 
     taskTime.createdAt = dayjs(new Date()).format(DATE_TIME_FORMAT);
-    taskTime.taskId = request.taskId;
     taskTime.initiatedAt = dayjs(request.initiatedAt).format(DATE_TIME_FORMAT);
     taskTime.endedAt = dayjs(request.endedAt).format(DATE_TIME_FORMAT);
+    taskTime.task = task;
     taskTime.timeSpent = timeSpent;
 
     return taskTime;

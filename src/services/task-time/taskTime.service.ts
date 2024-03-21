@@ -6,13 +6,14 @@ import {
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
-import { TaskTime } from '@entities';
+import { Task, TaskTime } from '@entities';
 import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
 import { calculateDifferenceInSeconds } from '@utils';
 import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
 import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
+import { TaskService } from '../task/task.service';
 
 @Injectable()
 export class TaskTimeService {
@@ -20,13 +21,19 @@ export class TaskTimeService {
     @InjectRepository(TaskTime) private taskTimeRepository: Repository<TaskTime>,
     private taskTimeValidator: TaskTimeValidator,
     private taskTimeMapper: TaskTimeMapper,
+    private taskService: TaskService,
   ) {}
 
   async createTaskTime(request: CreateTaskTimeRequestDto): Promise<CreateTaskTimeResponseDto> {
     this.taskTimeValidator.validateTaskTimeCreateRequest(request);
 
     const timeSpent: number = calculateDifferenceInSeconds(request.initiatedAt, request.endedAt);
-    const taskTime: TaskTime = this.taskTimeMapper.fromCreateTaskTimeToTaskTime(request, timeSpent);
+    const task: Task = await this.taskService.findOneById(request.taskId);
+    const taskTime: TaskTime = this.taskTimeMapper.fromCreateTaskTimeToTaskTime(
+      request,
+      timeSpent,
+      task,
+    );
     const entityResponse: TaskTime = await this.taskTimeRepository.save(taskTime);
     const response: CreateTaskTimeResponseDto =
       this.taskTimeMapper.fromTaskTimeToCreateTaskTimeResponse(entityResponse);
