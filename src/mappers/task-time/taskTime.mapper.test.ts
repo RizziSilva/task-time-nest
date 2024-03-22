@@ -42,7 +42,7 @@ describe('TaskTime mapper tests', () => {
     it('Converts task time to create task time response', () => {
       const taskTime: TaskTime = new TaskTime();
 
-      taskTime.taskId = 1;
+      // taskTime.taskId = 1;
       taskTime.timeSpent = 1234;
       taskTime.initiatedAt = '2024-02-26 10:30:18';
       taskTime.endedAt = '2024-02-26 12:00:00';

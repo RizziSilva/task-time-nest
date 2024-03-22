@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Task } from './task.entity';
 
 @Entity({ name: 'taskTime' })
@@ -18,12 +18,10 @@ export class TaskTime {
   @Column({ name: 'ended_at' })
   endedAt: string;
 
-  @Column({ name: 'id_task' })
-  taskId: number;
-
   @Column({ name: 'time_spent' })
   timeSpent: number;
 
-  @ManyToOne(() => Task, (task) => task.times)
+  @ManyToOne(() => Task, (task) => task.times, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_task' })
   task: Task;
 }

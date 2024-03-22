@@ -182,14 +182,12 @@ describe('TaskService Tests', () => {
 
       jest.spyOn(taskValidator, 'validateDeleteTask').mockImplementationOnce(() => {});
       jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
-      jest.spyOn(taskTimeService, 'deleteAllTaskTimeByTaskId').mockImplementation(async () => {});
       jest.spyOn(taskRepository, 'delete').mockResolvedValueOnce(deleteResponse);
 
       await taskService.deleteTask(taskId);
 
       expect(taskValidator.validateDeleteTask).toHaveBeenCalledWith(taskId);
       expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
-      expect(taskTimeService.deleteAllTaskTimeByTaskId).toHaveBeenCalledWith(taskId);
       expect(taskRepository.delete).toHaveBeenCalledWith({ id: taskId });
     });
     it('Delete a task without finded task throw error', async () => {

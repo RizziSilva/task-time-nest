@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -18,10 +18,10 @@ import { TaskService } from '../task/task.service';
 @Injectable()
 export class TaskTimeService {
   constructor(
+    @Inject(forwardRef(() => TaskService)) private taskService: TaskService,
     @InjectRepository(TaskTime) private taskTimeRepository: Repository<TaskTime>,
     private taskTimeValidator: TaskTimeValidator,
     private taskTimeMapper: TaskTimeMapper,
-    private taskService: TaskService,
   ) {}
 
   async createTaskTime(request: CreateTaskTimeRequestDto): Promise<CreateTaskTimeResponseDto> {
@@ -71,10 +71,6 @@ export class TaskTimeService {
     if (!taskTime) throw new DeleteTaskTimeException(`${DELETE_TASK_TIME_NOT_FOUND}${taskTimeId}.`);
 
     await this.taskTimeRepository.delete({ id: taskTimeId });
-  }
-
-  async deleteAllTaskTimeByTaskId(taskId: number): Promise<void> {
-    await this.taskTimeRepository.delete({ taskId });
   }
 
   async findOneById(id: number): Promise<TaskTime> {

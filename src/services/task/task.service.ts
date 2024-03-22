@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task, TaskTime } from '@entities';
@@ -27,7 +27,7 @@ export class TaskService {
     @InjectRepository(Task) private taskRepository: Repository<Task>,
     private taskValidator: TaskValidator,
     private taskMapper: TaskMapper,
-    private taskTimeService: TaskTimeService,
+    @Inject(forwardRef(() => TaskTimeService)) private taskTimeService: TaskTimeService,
   ) {}
 
   async create(
@@ -51,27 +51,6 @@ export class TaskService {
     return response;
   }
 
-  // async create(
-  //   user: AuthLoginResponseDto,
-  //   request: CreateTaskRequestDto,
-  // ): Promise<CreateTaskResponseDto> {
-  //   this.taskValidator.validateCreateTaskRequest(request);
-
-  //   const newTask: Task = this.taskMapper.fromCreateRequestToTask(user.id, request);
-  //   const entityResponse: Task = await this.taskRepository.save(newTask);
-  //   const taskTimeRequest: CreateTaskTimeRequestDto =
-  //     this.taskMapper.fromCreateRequestToCreateTaskTimeRequest(request, entityResponse.id);
-  //   const taskTime: CreateTaskTimeResponseDto = await this.taskTimeService.createTaskTime(
-  //     taskTimeRequest,
-  //   );
-  //   const response: CreateTaskResponseDto = this.taskMapper.fromTaskAndTaskTimeToCreateTaskResponse(
-  //     entityResponse,
-  //     taskTime,
-  //   );
-
-  //   return response;
-  // }
-
   async update(taskId: number, request: UpdateTaskRequestDto): Promise<UpdateTaskResponseDto> {
     this.taskValidator.validateUpdateTaskRequest(taskId);
 
@@ -93,9 +72,8 @@ export class TaskService {
     const task: Task = await this.findOneById(taskId);
 
     if (!task) throw new DeleteTaskException(DELETE_TASK_NOT_FOUND);
-
-    await this.taskTimeService.deleteAllTaskTimeByTaskId(taskId);
-    await this.taskRepository.delete({ id: taskId });
+    console.log(task);
+    await this.taskRepository.remove(task);
   }
 
   async getPaginatedTasks(

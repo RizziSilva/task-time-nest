@@ -5,7 +5,7 @@ import { TaskTime } from '@entities';
 import { TaskTimeController } from '@controllers';
 import { TaskTimeMapper } from '@mappers';
 import { TaskTimeValidator } from '@validators';
-import { TaskTimeService } from '@services';
+import { TaskService, TaskTimeService } from '@services';
 import { UserModule } from './user.module';
 import { AuthModule } from './auth.module';
 import { TaskModule } from './task.module';
