@@ -16,7 +16,11 @@ import {
 import { TaskValidator } from '@validators';
 import { DeleteTaskException, UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
-import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
+import {
+  DELETE_TASK_NOT_FOUND,
+  NUMBER_OF_ENTRIES_PER_PAGE,
+  UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
+} from '@constants';
 import { TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
 import { getTaskOffsetByPage } from '@utils';
 import { TaskTimeService } from '../task-time/taskTime.service';
@@ -72,7 +76,7 @@ export class TaskService {
     const task: Task = await this.findOneById(taskId);
 
     if (!task) throw new DeleteTaskException(DELETE_TASK_NOT_FOUND);
-    console.log(task);
+
     await this.taskRepository.remove(task);
   }
 
@@ -80,13 +84,13 @@ export class TaskService {
     request: GetPaginatedTaskRequestDto,
   ): Promise<GetPaginatedTaskResponseDto> {
     const pagination: TasksPagination = getTaskOffsetByPage(request.page);
-    const taskAndTimes: Array<TaskAndTime> = await this.getTasksAndTaskTimesByUserAndPage(
+    const taskAndTimes: Array<Task> = await this.getTasksAndTaskTimesByUserAndPage(
       request.userId,
       pagination,
     );
     const userNumberOfTasks: number = await this.countTasksByUserId(request.userId);
     const response: GetPaginatedTaskResponseDto =
-      this.taskMapper.formTasksAndTimesToPaginatedTasksResponse(
+      this.taskMapper.fromTasksToGetPaginatedTasksResponse(
         taskAndTimes,
         request.page,
         userNumberOfTasks,
@@ -109,14 +113,18 @@ export class TaskService {
   async getTasksAndTaskTimesByUserAndPage(
     userId: number,
     pagination: TasksPagination,
-  ): Promise<Array<TaskAndTime>> {
-    return await this.taskRepository.manager.query(`
-      select t.id as taskId, t.title, t.description, t.link, tt.time_spent as timeSpent, tt.id as taskTimeId, tt.initiated_at as initiatedAt, tt.ended_at as endedAt from taskTime tt
-      inner join task t on t.id = tt.id_task
-      WHERE t.id_user = ${userId} 
-      ORDER BY t.created_at DESC
-      LIMIT ${pagination.initial}, ${pagination.end};
-    `);
+  ): Promise<Array<Task>> {
+    return await this.taskRepository.find({
+      relations: {
+        times: true,
+      },
+      where: [{ idUser: userId }],
+      order: {
+        createdAt: 'DESC',
+      },
+      skip: pagination.initial,
+      take: NUMBER_OF_ENTRIES_PER_PAGE,
+    });
   }
 
   async countTasksByUserId(idUser: number): Promise<number> {

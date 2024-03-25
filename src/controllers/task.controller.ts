@@ -57,7 +57,7 @@ export class TaskController {
 
   @UseGuards(UserJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Get()
+  @Get('paginated')
   async getTask(
     @Query() request: GetPaginatedTaskRequestDto,
   ): Promise<GetPaginatedTaskResponseDto> {

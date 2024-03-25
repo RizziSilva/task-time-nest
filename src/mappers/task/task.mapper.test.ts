@@ -4,13 +4,13 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
-  TasksDto,
+  TaskDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TaskMapper } from './task.mapper';
-import { Task } from '@entities';
+import { Task, TaskTime } from '@entities';
 import { TaskAndTime, UpdateTask } from '@interfaces';
 import dayjs from 'dayjs';
 import { DATE_TIME_FORMAT } from '@constants';
@@ -103,56 +103,32 @@ describe('TaskMapper tests', () => {
     });
   });
 
-  describe('formTasksAndTimesToPaginatedTasksResponse tests', () => {
-    interface tasksMock {
-      taskAndTime: TaskAndTime;
-      taskDto: TasksDto;
-    }
-
-    function createTasksAndTimes(taskId: number): tasksMock {
-      const timeSpent: number = 100;
-      const taskAndTime: TaskAndTime = new TaskAndTime();
-
-      taskAndTime.taskId = taskId;
-      taskAndTime.timeSpent = timeSpent;
-
-      const taskDto: TasksDto = new TasksDto();
-      const timesDto: GetPaginatedTimesDto = new GetPaginatedTimesDto();
-
-      timesDto.totalTimeSpent = timeSpent;
-      taskDto.id = taskId;
-      taskDto.totalTimeSpent = timeSpent;
-      taskDto.times = [timesDto];
-
-      return { taskAndTime, taskDto };
-    }
-
-    it('Convert tasks and times to paginated response', () => {
-      const mockedTasks: tasksMock = createTasksAndTimes(1);
-      const mockedTasksTwo: tasksMock = createTasksAndTimes(2);
-      const allTasksAndTimes: Array<TaskAndTime> = new Array<TaskAndTime>();
-
-      allTasksAndTimes.push(mockedTasks.taskAndTime);
-      allTasksAndTimes.push(mockedTasksTwo.taskAndTime);
-
+  describe('fromTasksToGetPaginatedTasksResponse tests', () => {
+    it('Convert tasks to paginated response', () => {
+      const timeSpentPerEntry: number = 100;
       const page: number = 1;
-      const userNumberOfTasks: number = 2;
-      const expected: GetPaginatedTaskResponseDto = new GetPaginatedTaskResponseDto();
-      const allTasksDtos: Array<TasksDto> = [mockedTasks.taskDto, mockedTasksTwo.taskDto];
+      const userTotalTasks: number = 10;
+      const tasks: Array<Task> = new Array<Task>();
+      const task: Task = new Task();
+      const taskTime: TaskTime = new TaskTime();
 
-      expected.isLastPage = true;
-      expected.page = 1;
-      expected.tasks = allTasksDtos;
+      taskTime.initiatedAt = '2024-02-26 10:30:18';
+      taskTime.endedAt = '2024-02-26 12:00:00';
+      taskTime.timeSpent = timeSpentPerEntry;
 
-      const response: GetPaginatedTaskResponseDto =
-        taskMapper.formTasksAndTimesToPaginatedTasksResponse(
-          allTasksAndTimes,
-          page,
-          userNumberOfTasks,
-        );
+      task.times = [taskTime, taskTime];
 
-      expect(response).toEqual(expected);
-      expect(response.tasks.length).toBe(allTasksDtos.length);
+      tasks.push(task, task);
+
+      const result: GetPaginatedTaskResponseDto = taskMapper.fromTasksToGetPaginatedTasksResponse(
+        tasks,
+        page,
+        userTotalTasks,
+      );
+
+      expect(result.tasks).toHaveLength(tasks.length);
+      expect(result.page).toEqual(1);
+      expect(result.isLastPage).toBeFalsy();
     });
   });
 });

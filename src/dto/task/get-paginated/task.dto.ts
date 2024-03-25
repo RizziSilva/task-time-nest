@@ -1,6 +1,6 @@
 import { GetPaginatedTimesDto } from './times.dto';
 
-export class TasksDto {
+export class TaskDto {
   id: number;
   title: string;
   description: string;

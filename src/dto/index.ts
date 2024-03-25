@@ -14,7 +14,7 @@ export {
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
-  TasksDto,
+  TaskDto,
 } from './task';
 export {
   CreateTaskTimeResponseDto,
