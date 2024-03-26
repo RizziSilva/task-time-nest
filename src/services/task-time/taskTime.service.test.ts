@@ -4,9 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { TaskTimeController } from '@controllers';
-import { TaskTime, User } from '@entities';
-import { AuthMapper, TaskTimeMapper, UserMapper } from '@mappers';
-import { TaskTimeValidator, UserValidator } from '@validators';
+import { Task, TaskTime, User } from '@entities';
+import { AuthMapper, TaskMapper, TaskTimeMapper, UserMapper } from '@mappers';
+import { TaskTimeValidator, TaskValidator, UserValidator } from '@validators';
 import {
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
@@ -19,6 +19,7 @@ import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '
 import { TaskTimeService } from './taskTime.service';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
+import { TaskService } from '../task/task.service';
 
 jest.mock('@utils', () => ({
   ...jest.requireActual('@utils'),
@@ -35,6 +36,9 @@ describe('TaskTime service tests', () => {
     const ref: TestingModule = await Test.createTestingModule({
       controllers: [TaskTimeController],
       providers: [
+        TaskService,
+        TaskValidator,
+        TaskMapper,
         TaskTimeMapper,
         TaskTimeService,
         TaskTimeValidator,
@@ -45,6 +49,10 @@ describe('TaskTime service tests', () => {
         AuthService,
         AuthMapper,
         JwtService,
+        {
+          provide: getRepositoryToken(Task),
+          useValue: { findOneBy: jest.fn() },
+        },
         {
           provide: getRepositoryToken(User),
           useValue: {},
@@ -167,20 +175,6 @@ describe('TaskTime service tests', () => {
       expect(act).rejects.toThrow(`${DELETE_TASK_TIME_NOT_FOUND}${taskTimeId}.`);
       expect(taskTimeValidator.validateTaskTimeDelete).toHaveBeenCalledWith(taskTimeId);
       expect(taskTimeService.findOneById).toHaveBeenCalledWith(taskTimeId);
-    });
-  });
-
-  describe('deleteAllTaskTimeByTaskId tests', () => {
-    it('Delete task times by task id with success', async () => {
-      const taskId: number = 1;
-      const deleteResponse: DeleteResult = new DeleteResult();
-
-      jest.spyOn(taskTimeRepository, 'delete').mockResolvedValueOnce(deleteResponse);
-
-      await taskTimeService.deleteAllTaskTimeByTaskId(taskId);
-
-      expect(taskTimeRepository.delete).toHaveBeenCalledTimes(1);
-      expect(taskTimeRepository.delete).toHaveBeenCalledWith({ taskId });
     });
   });
 

@@ -15,11 +15,10 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
-  TasksDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
-import { TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
+import { TasksPagination, UpdateTask } from '@interfaces';
 import { DeleteTaskException, UpdateTaskException } from '@exceptions';
 import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
 import { getTaskOffsetByPage } from '@utils';
@@ -63,7 +62,14 @@ describe('TaskService Tests', () => {
         },
         {
           provide: getRepositoryToken(Task),
-          useValue: { save: jest.fn(), findOneBy: jest.fn(), update: jest.fn(), delete: jest.fn() },
+          useValue: {
+            save: jest.fn(),
+            findOneBy: jest.fn(),
+            update: jest.fn(),
+            remove: jest.fn(),
+            find: jest.fn(),
+            count: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(TaskTime),
@@ -178,19 +184,16 @@ describe('TaskService Tests', () => {
     it('Delete a task and its task times with success', async () => {
       const taskId: number = 1;
       const task: Task = new Task();
-      const deleteResponse: DeleteResult = new DeleteResult();
 
       jest.spyOn(taskValidator, 'validateDeleteTask').mockImplementationOnce(() => {});
       jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
-      jest.spyOn(taskTimeService, 'deleteAllTaskTimeByTaskId').mockImplementation(async () => {});
-      jest.spyOn(taskRepository, 'delete').mockResolvedValueOnce(deleteResponse);
+      jest.spyOn(taskRepository, 'remove').mockResolvedValueOnce(task);
 
       await taskService.deleteTask(taskId);
 
       expect(taskValidator.validateDeleteTask).toHaveBeenCalledWith(taskId);
       expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
-      expect(taskTimeService.deleteAllTaskTimeByTaskId).toHaveBeenCalledWith(taskId);
-      expect(taskRepository.delete).toHaveBeenCalledWith({ id: taskId });
+      expect(taskRepository.remove).toHaveBeenCalledWith(task);
     });
     it('Delete a task without finded task throw error', async () => {
       const taskId: number = 2;
@@ -266,30 +269,26 @@ describe('TaskService Tests', () => {
       request.userId = 15;
 
       const userNumberOfTasks: number = 10;
-      const taskAndTimes: Array<TaskAndTime> = new Array<TaskAndTime>();
+      const tasks: Array<Task> = new Array<Task>();
       const response: GetPaginatedTaskResponseDto = new GetPaginatedTaskResponseDto();
-      const tasks: TasksDto = new TasksDto();
-      const responseTasks: Array<TasksDto> = [tasks];
 
-      response.isLastPage = false;
-      response.page = request.page;
-      response.tasks = responseTasks;
-
-      jest
-        .spyOn(taskService, 'getTasksAndTaskTimesByUserAndPage')
-        .mockResolvedValueOnce(taskAndTimes);
       jest.spyOn(taskService, 'countTasksByUserId').mockResolvedValueOnce(userNumberOfTasks);
+      jest.spyOn(taskService, 'getTasksAndTaskTimesByUserAndPage').mockResolvedValueOnce(tasks);
       jest
-        .spyOn(taskMapper, 'formTasksAndTimesToPaginatedTasksResponse')
+        .spyOn(taskMapper, 'fromTasksToGetPaginatedTasksResponse')
         .mockImplementationOnce(() => response);
 
       const result: GetPaginatedTaskResponseDto = await taskService.getPaginatedTasks(request);
 
-      expect(result).toBe(response);
-      expect(getTaskOffsetByPage).toHaveBeenCalled();
+      expect(result).toEqual(response);
+      expect(taskService.countTasksByUserId).toHaveBeenCalledWith(request.userId);
       expect(taskService.getTasksAndTaskTimesByUserAndPage).toHaveBeenCalled();
-      expect(taskService.countTasksByUserId).toHaveBeenCalled();
-      expect(taskMapper.formTasksAndTimesToPaginatedTasksResponse).toHaveBeenCalled();
+      expect(taskMapper.fromTasksToGetPaginatedTasksResponse).toHaveBeenCalledWith(
+        tasks,
+        request.page,
+        userNumberOfTasks,
+      );
+      expect(getTaskOffsetByPage).toHaveBeenCalledWith(request.page);
     });
   });
 });

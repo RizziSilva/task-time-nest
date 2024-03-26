@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -6,17 +6,19 @@ import {
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
-import { TaskTime } from '@entities';
+import { Task, TaskTime } from '@entities';
 import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
 import { calculateDifferenceInSeconds } from '@utils';
 import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
 import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
+import { TaskService } from '../task/task.service';
 
 @Injectable()
 export class TaskTimeService {
   constructor(
+    @Inject(forwardRef(() => TaskService)) private taskService: TaskService,
     @InjectRepository(TaskTime) private taskTimeRepository: Repository<TaskTime>,
     private taskTimeValidator: TaskTimeValidator,
     private taskTimeMapper: TaskTimeMapper,
@@ -26,7 +28,12 @@ export class TaskTimeService {
     this.taskTimeValidator.validateTaskTimeCreateRequest(request);
 
     const timeSpent: number = calculateDifferenceInSeconds(request.initiatedAt, request.endedAt);
-    const taskTime: TaskTime = this.taskTimeMapper.fromCreateTaskTimeToTaskTime(request, timeSpent);
+    const task: Task = await this.taskService.findOneById(request.taskId);
+    const taskTime: TaskTime = this.taskTimeMapper.fromCreateTaskTimeToTaskTime(
+      request,
+      timeSpent,
+      task,
+    );
     const entityResponse: TaskTime = await this.taskTimeRepository.save(taskTime);
     const response: CreateTaskTimeResponseDto =
       this.taskTimeMapper.fromTaskTimeToCreateTaskTimeResponse(entityResponse);
@@ -64,10 +71,6 @@ export class TaskTimeService {
     if (!taskTime) throw new DeleteTaskTimeException(`${DELETE_TASK_TIME_NOT_FOUND}${taskTimeId}.`);
 
     await this.taskTimeRepository.delete({ id: taskTimeId });
-  }
-
-  async deleteAllTaskTimeByTaskId(taskId: number): Promise<void> {
-    await this.taskTimeRepository.delete({ taskId });
   }
 
   async findOneById(id: number): Promise<TaskTime> {

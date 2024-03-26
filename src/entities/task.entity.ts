@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TaskTime } from './taskTime.entity';
 
 @Entity()
 export class Task {
@@ -22,4 +23,9 @@ export class Task {
 
   @Column({ name: 'updated_at' })
   updatedAt: string;
+
+  @OneToMany(() => TaskTime, (taskTime) => taskTime.task, {
+    cascade: ['remove'],
+  })
+  times: TaskTime[];
 }
