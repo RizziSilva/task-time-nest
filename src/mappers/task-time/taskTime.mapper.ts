@@ -33,7 +33,6 @@ export class TaskTimeMapper {
     response.createdAt = taskTime.createdAt;
     response.endedAt = taskTime.endedAt;
     response.initiatedAt = taskTime.initiatedAt;
-    // response.taskId = taskTime.taskId;
     response.updatedAt = taskTime.updatedAt;
     response.timeSpent = taskTime.timeSpent;
 
@@ -60,7 +59,6 @@ export class TaskTimeMapper {
     response.createdAt = taskTime.createdAt;
     response.updatedAt = taskTime.updatedAt;
     response.id = taskTime.id;
-    // response.taskId = taskTime.taskId;
     response.timeSpent = taskTime.timeSpent;
     response.initiatedAt = taskTime.initiatedAt;
     response.endedAt = taskTime.endedAt;
