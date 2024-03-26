@@ -7,6 +7,8 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
+  GetTaskResponseDto,
+  GetTimesDto,
   TaskDto,
   TimesDto,
   UpdateTaskRequestDto,
@@ -105,6 +107,33 @@ export class TaskMapper {
     response.isLastPage = totalTasksReturned >= userNumberOfTasks;
 
     return response;
+  }
+
+  fromTaskToGetTaskResponseDto(task: Task): GetTaskResponseDto {
+    const response: GetTaskResponseDto = new GetTaskResponseDto();
+    console.log(task);
+    response.createdAt = task.createdAt;
+    response.description = task.description;
+    response.id = task.id;
+    response.idUser = task.idUser;
+    response.link = task.link;
+    response.title = task.title;
+    response.updatedAt = task.updatedAt;
+    response.times = this.fromTaskTimeToGetTaskTimeDto(task.times);
+
+    return response;
+  }
+
+  private fromTaskTimeToGetTaskTimeDto(taskTimes: Array<TaskTime>): Array<GetTimesDto> {
+    return taskTimes.map((taskTime) => {
+      const response: GetTimesDto = new GetTimesDto();
+
+      response.endedAt = taskTime.endedAt;
+      response.initiatedAt = taskTime.initiatedAt;
+      response.totalTimeSpent = taskTime.timeSpent;
+
+      return response;
+    });
   }
 
   private fromTasksToTasksDto(tasks: Array<Task>): Array<TaskDto> {

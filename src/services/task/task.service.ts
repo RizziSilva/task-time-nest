@@ -10,14 +10,16 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
+  GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TaskValidator } from '@validators';
-import { DeleteTaskException, UpdateTaskException } from '@exceptions';
+import { DeleteTaskException, GetTaskException, UpdateTaskException } from '@exceptions';
 import { TaskMapper } from '@mappers';
 import {
   DELETE_TASK_NOT_FOUND,
+  GET_TASK_NOT_FOUND,
   NUMBER_OF_ENTRIES_PER_PAGE,
   UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
 } from '@constants';
@@ -95,6 +97,18 @@ export class TaskService {
         request.page,
         userNumberOfTasks,
       );
+
+    return response;
+  }
+
+  async getTask(taskId: number): Promise<GetTaskResponseDto> {
+    this.taskValidator.validateGetTask(taskId);
+
+    const task: Task = await this.findOneById(taskId);
+
+    if (!task) throw new GetTaskException(GET_TASK_NOT_FOUND);
+
+    const response: GetTaskResponseDto = this.taskMapper.fromTaskToGetTaskResponseDto(task);
 
     return response;
   }
