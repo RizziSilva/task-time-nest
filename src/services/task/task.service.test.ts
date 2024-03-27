@@ -15,12 +15,17 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskRequestDto,
   GetPaginatedTaskResponseDto,
+  GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
 import { TasksPagination, UpdateTask } from '@interfaces';
-import { DeleteTaskException, UpdateTaskException } from '@exceptions';
-import { DELETE_TASK_NOT_FOUND, UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND } from '@constants';
+import { DeleteTaskException, GetTaskException, UpdateTaskException } from '@exceptions';
+import {
+  DELETE_TASK_NOT_FOUND,
+  GET_TASK_NOT_FOUND,
+  UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
+} from '@constants';
 import { getTaskOffsetByPage } from '@utils';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
@@ -64,11 +69,11 @@ describe('TaskService Tests', () => {
           provide: getRepositoryToken(Task),
           useValue: {
             save: jest.fn(),
-            findOneBy: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
             find: jest.fn(),
             count: jest.fn(),
+            findOne: jest.fn(),
           },
         },
         {
@@ -218,23 +223,23 @@ describe('TaskService Tests', () => {
       const task: Task = new Task();
       task.title = 'Some task';
 
-      jest.spyOn(taskRepository, 'findOneBy').mockResolvedValueOnce(task);
+      jest.spyOn(taskRepository, 'findOne').mockResolvedValueOnce(task);
 
       const result: Task = await taskService.findOneById(taskId);
 
       expect(result).toBe(task);
-      expect(taskRepository.findOneBy).toHaveBeenCalledWith({ id: taskId });
+      expect(taskRepository.findOne).toHaveBeenCalled();
     });
 
     it('Try find one task by id and return null with success', async () => {
       const taskId: number = 2;
 
-      jest.spyOn(taskRepository, 'findOneBy').mockResolvedValueOnce(null);
+      jest.spyOn(taskRepository, 'findOne').mockResolvedValueOnce(null);
 
       const result: Task = await taskService.findOneById(taskId);
 
       expect(result).toBeNull();
-      expect(taskRepository.findOneBy).toHaveBeenCalledWith({ id: taskId });
+      expect(taskRepository.findOne).toHaveBeenCalled();
     });
   });
 
@@ -289,6 +294,41 @@ describe('TaskService Tests', () => {
         userNumberOfTasks,
       );
       expect(getTaskOffsetByPage).toHaveBeenCalledWith(request.page);
+    });
+  });
+
+  describe('getTask tests', () => {
+    it('Get a task with success', async () => {
+      const taskId: number = 1;
+      const response: GetTaskResponseDto = new GetTaskResponseDto();
+      const task: Task = new Task();
+
+      jest.spyOn(taskValidator, 'validateGetTask').mockImplementationOnce(() => {});
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
+      jest.spyOn(taskMapper, 'fromTaskToGetTaskResponseDto').mockReturnValueOnce(response);
+
+      const result: GetTaskResponseDto = await taskService.getTask(taskId);
+
+      expect(result).toEqual(response);
+      expect(taskValidator.validateGetTask).toHaveBeenCalled();
+      expect(taskMapper.fromTaskToGetTaskResponseDto).toHaveBeenCalledWith(task);
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
+    });
+
+    it('Get a task with success', async () => {
+      const taskId: number = 1;
+
+      jest.spyOn(taskValidator, 'validateGetTask').mockImplementationOnce(() => {});
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(null);
+
+      const act: Function = async () => {
+        await taskService.getTask(taskId);
+      };
+
+      expect(act).rejects.toThrow(GetTaskException);
+      expect(act).rejects.toThrow(`${GET_TASK_NOT_FOUND}${taskId}.`);
+      expect(taskValidator.validateGetTask).toHaveBeenCalled();
+      expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
     });
   });
 });

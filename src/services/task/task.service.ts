@@ -106,7 +106,7 @@ export class TaskService {
 
     const task: Task = await this.findOneById(taskId);
 
-    if (!task) throw new GetTaskException(GET_TASK_NOT_FOUND);
+    if (!task) throw new GetTaskException(`${GET_TASK_NOT_FOUND}${taskId}.`);
 
     const response: GetTaskResponseDto = this.taskMapper.fromTaskToGetTaskResponseDto(task);
 
@@ -114,7 +114,12 @@ export class TaskService {
   }
 
   async findOneById(id: number): Promise<Task> {
-    return await this.taskRepository.findOneBy({ id: id });
+    return await this.taskRepository.findOne({
+      relations: {
+        times: true,
+      },
+      where: [{ id }],
+    });
   }
 
   async updateById(id: number, newTask: UpdateTask): Promise<Task> {

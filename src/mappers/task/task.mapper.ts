@@ -111,7 +111,7 @@ export class TaskMapper {
 
   fromTaskToGetTaskResponseDto(task: Task): GetTaskResponseDto {
     const response: GetTaskResponseDto = new GetTaskResponseDto();
-    console.log(task);
+
     response.createdAt = task.createdAt;
     response.description = task.description;
     response.id = task.id;

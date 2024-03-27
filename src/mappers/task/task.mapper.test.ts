@@ -4,6 +4,8 @@ import {
   CreateTaskTimeResponseDto,
   GetPaginatedTaskResponseDto,
   GetPaginatedTimesDto,
+  GetTaskResponseDto,
+  GetTimesDto,
   TaskDto,
   TimesDto,
   UpdateTaskRequestDto,
@@ -93,13 +95,23 @@ describe('TaskMapper tests', () => {
   describe('fromTaskToTaskUpdateResponse', () => {
     it('Convert task to task update response', () => {
       const task: Task = new Task();
+
       task.title = 'Task title';
       task.description = 'Task description';
       task.link = 'Task link';
 
+      const expected: UpdateTaskResponseDto = new UpdateTaskResponseDto();
+
+      expected.createdAt = task.createdAt;
+      expected.description = task.description;
+      expected.id = task.id;
+      expected.link = task.link;
+      expected.title = task.title;
+      expected.updatedAt = task.updatedAt;
+
       const result: UpdateTaskResponseDto = taskMapper.fromTaskToTaskUpdateResponse(task);
 
-      expect(result).toEqual(task);
+      expect(result).toEqual(expected);
     });
   });
 
@@ -129,6 +141,34 @@ describe('TaskMapper tests', () => {
       expect(result.tasks).toHaveLength(tasks.length);
       expect(result.page).toEqual(1);
       expect(result.isLastPage).toBeFalsy();
+    });
+  });
+
+  describe('fromTaskToGetTaskResponseDto', () => {
+    it('Convert task to GetTaskResponseDto', () => {
+      const task: Task = new Task();
+      const taskTime: TaskTime = new TaskTime();
+
+      task.times.push(taskTime);
+
+      const expected: GetTaskResponseDto = new GetTaskResponseDto();
+
+      expected.createdAt = task.createdAt;
+      expected.description = task.description;
+      expected.id = task.id;
+      expected.idUser = task.idUser;
+      expected.link = task.link;
+      expected.title = task.title;
+      expected.updatedAt = task.updatedAt;
+
+      const time: GetTimesDto = new GetTimesDto();
+      const times: Array<GetTimesDto> = [time];
+
+      expected.times = times;
+
+      const result: GetTaskResponseDto = taskMapper.fromTaskToGetTaskResponseDto(task);
+
+      expect(result).toEqual(expected);
     });
   });
 });
