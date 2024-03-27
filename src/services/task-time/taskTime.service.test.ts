@@ -31,6 +31,7 @@ describe('TaskTime service tests', () => {
   let taskTimeRepository: Repository<TaskTime>;
   let taskTimeMapper: TaskTimeMapper;
   let taskTimeValidator: TaskTimeValidator;
+  let taskService: TaskService;
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -68,6 +69,7 @@ describe('TaskTime service tests', () => {
     taskTimeRepository = ref.get<Repository<TaskTime>>(getRepositoryToken(TaskTime));
     taskTimeMapper = ref.get<TaskTimeMapper>(TaskTimeMapper);
     taskTimeValidator = ref.get<TaskTimeValidator>(TaskTimeValidator);
+    taskService = ref.get<TaskService>(TaskService);
   });
 
   describe('createTaskTime tests', () => {
@@ -78,12 +80,14 @@ describe('TaskTime service tests', () => {
 
       const taskTime: TaskTime = new TaskTime();
       const response: CreateTaskTimeResponseDto = new CreateTaskTimeResponseDto();
+      const task: Task = new Task();
 
       jest.spyOn(taskTimeMapper, 'fromCreateTaskTimeToTaskTime').mockReturnValueOnce(taskTime);
       jest.spyOn(taskTimeRepository, 'save').mockResolvedValueOnce(taskTime);
       jest
         .spyOn(taskTimeMapper, 'fromTaskTimeToCreateTaskTimeResponse')
         .mockReturnValueOnce(response);
+      jest.spyOn(taskService, 'findOneById').mockResolvedValueOnce(task);
 
       const result: CreateTaskTimeResponseDto = await taskTimeService.createTaskTime(request);
 
@@ -91,6 +95,7 @@ describe('TaskTime service tests', () => {
       expect(taskTimeMapper.fromCreateTaskTimeToTaskTime).toHaveBeenCalled();
       expect(taskTimeMapper.fromTaskTimeToCreateTaskTimeResponse).toHaveBeenCalled();
       expect(taskTimeRepository.save).toHaveBeenCalled();
+      expect(taskService.findOneById).toHaveBeenCalledWith(request.taskId);
       expect(calculateDifferenceInSeconds).toHaveBeenCalled();
     });
   });

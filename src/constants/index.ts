@@ -34,6 +34,8 @@ export {
   DELETE_TASK_DEFAULT_MESSAGE,
   DELETE_TASK_MISSING_ID,
   DELETE_TASK_NOT_FOUND,
+  GET_TASK_MISSING_ID,
+  GET_TASK_NOT_FOUND,
 } from './task/exception.constant';
 export { TEN_MINUTES } from './task/test.constant';
 export {

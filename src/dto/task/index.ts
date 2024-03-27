@@ -7,3 +7,5 @@ export { GetPaginatedTaskRequestDto } from './get-paginated/request.dto';
 export { GetPaginatedTaskResponseDto } from './get-paginated/response.dto';
 export { GetPaginatedTimesDto } from './get-paginated/times.dto';
 export { TaskDto } from './get-paginated/task.dto';
+export { GetTaskResponseDto } from './get/response.dto';
+export { GetTimesDto } from './get/times.dto';

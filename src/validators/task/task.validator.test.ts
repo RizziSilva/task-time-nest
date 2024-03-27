@@ -1,12 +1,18 @@
 import dayjs from 'dayjs';
 import { CreateTaskRequestDto } from '@dtos';
-import { CreateTaskException, DeleteTaskException, UpdateTaskException } from '@exceptions';
+import {
+  CreateTaskException,
+  DeleteTaskException,
+  GetTaskException,
+  UpdateTaskException,
+} from '@exceptions';
 import {
   CREATE_TASK_EXCEPTION_MISSING_ENDED,
   CREATE_TASK_EXCEPTION_MISSING_INITIATED,
   CREATE_TASK_EXCEPTION_TIMES_RELATION,
   DATE_TIME_FORMAT,
   DELETE_TASK_MISSING_ID,
+  GET_TASK_MISSING_ID,
   TEN_MINUTES,
   UPDATE_TASK_EXCEPTION_MISSING_TASK_ID,
 } from '@constants';
@@ -125,6 +131,29 @@ describe('TaskValidator tests', () => {
 
       expect(act).toThrow(DeleteTaskException);
       expect(act).toThrow(DELETE_TASK_MISSING_ID);
+    });
+  });
+
+  describe('validateGetTask tests', () => {
+    it('Validate get task shouldnt throw', () => {
+      const taskId: number = 1;
+
+      const act: Function = () => {
+        validator.validateGetTask(taskId);
+      };
+
+      expect(act).not.toThrow();
+    });
+
+    it('Validate get tasj shouldnt throw', () => {
+      const taskId: number = null;
+
+      const act: Function = () => {
+        validator.validateGetTask(taskId);
+      };
+
+      expect(act).toThrow(GetTaskException);
+      expect(act).toThrow(`${GET_TASK_MISSING_ID}`);
     });
   });
 });
