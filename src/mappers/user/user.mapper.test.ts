@@ -1,5 +1,10 @@
 import dayjs from 'dayjs';
-import { UserCreateRequestDto, UserCreateResponseDto, UserUpdateResponseDto } from '@dtos';
+import {
+  GetUserResponseDto,
+  UserCreateRequestDto,
+  UserCreateResponseDto,
+  UserUpdateResponseDto,
+} from '@dtos';
 import { User } from '@entities';
 import { DATE_TIME_FORMAT } from '@constants';
 import { UserMapper } from './user.mapper';
@@ -61,6 +66,22 @@ describe('UserMapper Test', () => {
       user.name = 'Valid Name';
 
       const expected: UserUpdateResponseDto = userMapper.fromUserToUpdateUserResponse(user);
+
+      expect(expected).toEqual(user);
+    });
+  });
+
+  describe('fromUserToGetUserResponseDto tests', () => {
+    it('Convert user to get user response', () => {
+      const dateMock: string = dayjs(new Date()).format(DATE_TIME_FORMAT);
+      const user: User = new User();
+
+      user.name = 'Usuário teste';
+      user.email = 'usuario.email@gmail.com';
+      user.updatedAt = dateMock;
+      user.createdAt = dateMock;
+
+      const expected: GetUserResponseDto = userMapper.fromUserToGetUserResponseDto(user);
 
       expect(expected).toEqual(user);
     });

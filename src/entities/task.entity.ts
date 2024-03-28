@@ -27,5 +27,5 @@ export class Task {
   @OneToMany(() => TaskTime, (taskTime) => taskTime.task, {
     cascade: ['remove'],
   })
-  times: TaskTime[] = [];
+  times: TaskTime[];
 }

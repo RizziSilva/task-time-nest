@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { UserCreateRequestDto, UserCreateResponseDto, UserUpdateResponseDto } from '@dtos';
+import {
+  GetUserResponseDto,
+  UserCreateRequestDto,
+  UserCreateResponseDto,
+  UserUpdateResponseDto,
+} from '@dtos';
 import { User } from '@entities';
 import { DATE_TIME_FORMAT } from '@constants';
 
@@ -34,6 +39,17 @@ export class UserMapper {
 
     response.email = entity.email;
     response.name = entity.name;
+
+    return response;
+  }
+
+  fromUserToGetUserResponseDto(user: User): GetUserResponseDto {
+    const response: GetUserResponseDto = new GetUserResponseDto();
+
+    response.email = user.email;
+    response.name = user.name;
+    response.createdAt = user.createdAt;
+    response.updatedAt = user.updatedAt;
 
     return response;
   }

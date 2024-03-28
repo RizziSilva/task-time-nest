@@ -149,7 +149,7 @@ describe('TaskMapper tests', () => {
       const task: Task = new Task();
       const taskTime: TaskTime = new TaskTime();
 
-      task.times.push(taskTime);
+      task.times = [taskTime];
 
       const expected: GetTaskResponseDto = new GetTaskResponseDto();
 
