@@ -3,6 +3,7 @@ export {
   UserCreateResponseDto,
   UserUpdateRequestDto,
   UserUpdateResponseDto,
+  GetUserResponseDto,
 } from './user';
 export { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from './auth';
 export {

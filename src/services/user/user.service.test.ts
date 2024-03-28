@@ -10,6 +10,7 @@ import { AuthMapper, UserMapper } from '@mappers';
 import { UserController } from '@controllers';
 import {
   AuthLoginResponseDto,
+  GetUserResponseDto,
   UserCreateRequestDto,
   UserCreateResponseDto,
   UserUpdateRequestDto,
@@ -161,6 +162,33 @@ describe('UserService Tests', () => {
       await userService.updateRefreshToken(userId, refreshToken);
 
       expect(userRepository.update).toHaveBeenCalledWith({ id: userId }, { refreshToken });
+    });
+  });
+
+  describe('getUser tests', () => {
+    it('Get a user with success', async () => {
+      const requestUser: AuthLoginResponseDto = new AuthLoginResponseDto();
+
+      requestUser.id = 1;
+
+      const user: User = new User();
+
+      user.name = 'Usuário teste';
+      user.email = 'usuario.email@gmail.com';
+
+      const response: GetUserResponseDto = new GetUserResponseDto();
+
+      response.name = user.name;
+      response.email = user.email;
+
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(user);
+      jest.spyOn(userMapper, 'fromUserToGetUserResponseDto').mockReturnValueOnce(response);
+
+      const result: GetUserResponseDto = await userService.getUser(requestUser);
+
+      expect(result).toBe(response);
+      expect(userService.findOneById).toHaveBeenCalledWith(requestUser.id);
+      expect(userMapper.fromUserToGetUserResponseDto).toHaveBeenCalled();
     });
   });
 });

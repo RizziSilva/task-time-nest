@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 import {
   AuthLoginResponseDto,
+  GetUserResponseDto,
   UserCreateRequestDto,
   UserCreateResponseDto,
   UserUpdateRequestDto,
@@ -12,6 +13,8 @@ import {
 import { UserMapper } from '@mappers';
 import { User } from '@entities';
 import { UserValidator } from '@validators';
+import { DATE_TIME_FORMAT } from '@constants';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -46,6 +49,13 @@ export class UserService {
     return response;
   }
 
+  async getUser(user: AuthLoginResponseDto): Promise<GetUserResponseDto> {
+    const userEntity: User = await this.findOneById(user.id);
+    const response: GetUserResponseDto = this.userMapper.fromUserToGetUserResponseDto(userEntity);
+
+    return response;
+  }
+
   async findOneByEmail(email: string): Promise<User> {
     return await this.userRepository.findOneBy({
       email,
@@ -70,7 +80,10 @@ export class UserService {
 
   async updateById(currentId: number, newUser: UserUpdateRequestDto): Promise<User> {
     const { email, name } = newUser;
-    await this.userRepository.update({ id: currentId }, { email, name });
+    const now: string = dayjs(new Date()).format(DATE_TIME_FORMAT);
+
+    await this.userRepository.update({ id: currentId }, { email, name, updatedAt: now });
+
     const updatedEntity: User = await this.findOneById(currentId);
 
     return updatedEntity;

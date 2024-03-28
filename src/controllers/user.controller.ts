@@ -1,5 +1,10 @@
-import { Controller, Post, Body, Put, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
-import { AuthLoginResponseDto, UserCreateRequestDto, UserCreateResponseDto } from '@dtos';
+import { Controller, Post, Body, Put, HttpStatus, HttpCode, UseGuards, Get } from '@nestjs/common';
+import {
+  AuthLoginResponseDto,
+  GetUserResponseDto,
+  UserCreateRequestDto,
+  UserCreateResponseDto,
+} from '@dtos';
 import { UserService } from '@services';
 import { UserUpdateRequestDto, UserUpdateResponseDto } from '@dtos';
 import { RequestUser } from '@decorators';
@@ -22,5 +27,12 @@ export class UserController {
     @Body() request: UserUpdateRequestDto,
   ): Promise<UserUpdateResponseDto> {
     return await this.userService.update(request, user);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async getUser(@RequestUser() user: AuthLoginResponseDto): Promise<GetUserResponseDto> {
+    return await this.userService.getUser(user);
   }
 }
