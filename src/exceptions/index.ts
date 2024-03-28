@@ -8,3 +8,4 @@ export { CreateTaskTimeException } from './taskTime/create.exception';
 export { UpdateTaskTimeException } from './taskTime/update.exception';
 export { DeleteTaskTimeException } from './taskTime/delete.exception';
 export { DeleteTaskException } from './task/delete.exception';
+export { GetTaskException } from './task/get.exception';
