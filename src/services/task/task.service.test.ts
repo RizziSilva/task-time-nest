@@ -268,10 +268,12 @@ describe('TaskService Tests', () => {
 
   describe('getPaginatedTasks tests', () => {
     it('Get paginated user tasks with success', async () => {
+      const user: AuthLoginResponseDto = new AuthLoginResponseDto();
+      user.id = 1;
+
       const request: GetPaginatedTaskRequestDto = new GetPaginatedTaskRequestDto();
 
       request.page = 1;
-      request.userId = 15;
 
       const userNumberOfTasks: number = 10;
       const tasks: Array<Task> = new Array<Task>();
@@ -283,10 +285,13 @@ describe('TaskService Tests', () => {
         .spyOn(taskMapper, 'fromTasksToGetPaginatedTasksResponse')
         .mockImplementationOnce(() => response);
 
-      const result: GetPaginatedTaskResponseDto = await taskService.getPaginatedTasks(request);
+      const result: GetPaginatedTaskResponseDto = await taskService.getPaginatedTasks(
+        request,
+        user,
+      );
 
       expect(result).toEqual(response);
-      expect(taskService.countTasksByUserId).toHaveBeenCalledWith(request.userId);
+      expect(taskService.countTasksByUserId).toHaveBeenCalledWith(user.id);
       expect(taskService.getTasksAndTaskTimesByUserAndPage).toHaveBeenCalled();
       expect(taskMapper.fromTasksToGetPaginatedTasksResponse).toHaveBeenCalledWith(
         tasks,
