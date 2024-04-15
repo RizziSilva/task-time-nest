@@ -86,7 +86,6 @@ export class TaskService {
     request: GetPaginatedTaskRequestDto,
     user: AuthLoginResponseDto,
   ): Promise<GetPaginatedTaskResponseDto> {
-    console.log('userId', user.id);
     const pagination: TasksPagination = getTaskOffsetByPage(request.page);
     const taskAndTimes: Array<Task> = await this.getTasksAndTaskTimesByUserAndPage(
       user.id,
@@ -135,7 +134,6 @@ export class TaskService {
     userId: number,
     pagination: TasksPagination,
   ): Promise<Array<Task>> {
-    console.log('userId', userId);
     return await this.taskRepository.find({
       relations: {
         times: true,
