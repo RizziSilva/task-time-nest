@@ -1,6 +1,7 @@
 import { UserCreateRequestDto } from '@dtos';
 import { CreateUserException } from '@exceptions';
 import { UserValidator } from './user.validator';
+import { INVALID_EMAIL_MESSAGE, INVALID_NAME_MESSAGE, INVALID_PASSWORD_MESSAGE } from '@constants';
 
 describe('UserValidator Tests', () => {
   let validator: UserValidator;
@@ -16,9 +17,11 @@ describe('UserValidator Tests', () => {
       request.email = 'valid.email@email.com';
       request.password = 'ValidPass@123';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).not.toThrow();
+      };
+
+      expect(act).not.toThrow();
     });
 
     it('Should return invalid name message', () => {
@@ -27,20 +30,12 @@ describe('UserValidator Tests', () => {
       request.email = 'NomeDeTest';
       request.password = 'NomeDeTest';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
-    });
+      };
 
-    it('Should return invalid name message', () => {
-      const request: UserCreateRequestDto = new UserCreateRequestDto();
-      request.name = 'NomeDeTest';
-      request.email = 'NomeDeTest';
-      request.password = 'NomeDeTest';
-
-      expect(() => {
-        validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_NAME_MESSAGE);
     });
 
     it('Should return invalid email message', () => {
@@ -49,9 +44,12 @@ describe('UserValidator Tests', () => {
       request.email = 'invalidEmail';
       request.password = 'ValidPass@123';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      };
+
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_EMAIL_MESSAGE);
     });
 
     it('Should return invalid password message for password without number', () => {
@@ -60,9 +58,12 @@ describe('UserValidator Tests', () => {
       request.email = 'valid.email@email.com';
       request.password = 'Invalid@pass';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      };
+
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_PASSWORD_MESSAGE);
     });
 
     it('Should return invalid password message for password without special caracter', () => {
@@ -71,9 +72,12 @@ describe('UserValidator Tests', () => {
       request.email = 'valid.email@email.com';
       request.password = 'Invalidpass123';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      };
+
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_PASSWORD_MESSAGE);
     });
 
     it('Should return invalid password message for password without uppercase letter', () => {
@@ -82,9 +86,12 @@ describe('UserValidator Tests', () => {
       request.email = 'valid.email@email.com';
       request.password = 'invalidpass@123';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      };
+
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_PASSWORD_MESSAGE);
     });
 
     it('Should return invalid password message for password without lowercase letter', () => {
@@ -93,9 +100,12 @@ describe('UserValidator Tests', () => {
       request.email = 'valid.email@email.com';
       request.password = 'INVALID@PASS123';
 
-      expect(() => {
+      const act: Function = () => {
         validator.validateCreateUserRequest(request);
-      }).toThrow(CreateUserException);
+      };
+
+      expect(act).toThrow(CreateUserException);
+      expect(act).toThrow(INVALID_PASSWORD_MESSAGE);
     });
   });
 });
