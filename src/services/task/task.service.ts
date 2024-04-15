@@ -84,13 +84,15 @@ export class TaskService {
 
   async getPaginatedTasks(
     request: GetPaginatedTaskRequestDto,
+    user: AuthLoginResponseDto,
   ): Promise<GetPaginatedTaskResponseDto> {
+    console.log('userId', user.id);
     const pagination: TasksPagination = getTaskOffsetByPage(request.page);
     const taskAndTimes: Array<Task> = await this.getTasksAndTaskTimesByUserAndPage(
-      request.userId,
+      user.id,
       pagination,
     );
-    const userNumberOfTasks: number = await this.countTasksByUserId(request.userId);
+    const userNumberOfTasks: number = await this.countTasksByUserId(user.id);
     const response: GetPaginatedTaskResponseDto =
       this.taskMapper.fromTasksToGetPaginatedTasksResponse(
         taskAndTimes,
@@ -133,6 +135,7 @@ export class TaskService {
     userId: number,
     pagination: TasksPagination,
   ): Promise<Array<Task>> {
+    console.log('userId', userId);
     return await this.taskRepository.find({
       relations: {
         times: true,
