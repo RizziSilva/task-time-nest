@@ -8,6 +8,7 @@ async function initServer() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({ origin: configService.get<string>('REQUEST_ORIGIN') });
   app.useGlobalFilters(new HttpExceptionFilter());
+
   await app.listen(3000);
 }
 
