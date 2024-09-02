@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { AuthController } from '@controllers';
-import { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { User } from '@entities';
 import { UnauthorizedException } from '@exceptions';
 import { AuthMapper, UserMapper } from '@mappers';
@@ -47,20 +47,27 @@ describe('AuthService Tests', () => {
   describe('login Tests', () => {
     it('Login with Success', async () => {
       const request: AuthLoginResponseDto = new AuthLoginResponseDto();
-      const response: TokensDto = new TokensDto();
-      response.access_token = '';
-      response.refresh_token = '';
+      const tokens: TokensDto = new TokensDto();
+      const user: User = new User();
+      const response: LoginResponseDto = new LoginResponseDto();
+
+      tokens.access_token = '';
+      tokens.refresh_token = '';
+
+      response.token = tokens;
+      response.email = user.email;
+      response.name = user.name;
 
       jest.spyOn(userService, 'updateRefreshToken').mockImplementationOnce(() => Promise.resolve());
       jest.spyOn(jwtService, 'signAsync').mockImplementation(() => Promise.resolve(''));
-      jest.spyOn(authMapper, 'fromTokensToTokensDto').mockReturnValueOnce(response);
+      jest.spyOn(authMapper, 'fromTokensAndUserToLoginResponseDto').mockReturnValueOnce(response);
 
-      const result: TokensDto = await authService.login(request);
+      const result: LoginResponseDto = await authService.login(request);
 
       expect(result).toEqual(response);
       expect(userService.updateRefreshToken).toHaveBeenCalled();
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
-      expect(authMapper.fromTokensToTokensDto).toHaveBeenCalled();
+      expect(authMapper.fromTokensAndUserToLoginResponseDto).toHaveBeenCalled();
     });
   });
 

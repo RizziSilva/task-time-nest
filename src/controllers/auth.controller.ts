@@ -1,6 +1,6 @@
 import { Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { RequestLoginUser } from '@decorators';
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginResponseDto, LoginResponseDto } from '@dtos';
 import { AuthService } from '@services';
 import { UserAuthGuard } from '@guards';
 
@@ -11,7 +11,7 @@ export class AuthController {
   @UseGuards(UserAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/login')
-  async login(@RequestLoginUser() user: AuthLoginResponseDto): Promise<TokensDto> {
+  async login(@RequestLoginUser() user: AuthLoginResponseDto): Promise<LoginResponseDto> {
     return await this.authService.login(user);
   }
 }

@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
 import { UnauthorizedActionException } from '@exceptions';
@@ -87,11 +87,11 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
       });
 
-      const tokens: TokensDto = await this.authService.login(userAuthResponse);
+      const loginResponse: LoginResponseDto = await this.authService.login(userAuthResponse);
 
       request['user'] = userAuthResponse;
-      response.setHeader('access_token', tokens.access_token);
-      response.setHeader('refresh_token', tokens.refresh_token);
+      response.setHeader('access_token', loginResponse.token.access_token);
+      response.setHeader('refresh_token', loginResponse.token.refresh_token);
 
       return true;
     } catch (error) {
@@ -100,8 +100,8 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokensFromHeader(request: Request): TokensDto {
-    const [accessType, accessToken] = request.headers['authorization']?.split(' ') ?? [];
-    const [refreshType, refreshToken] = request.headers['refreshtoken']?.split(' ') ?? [];
+    const [accessType, accessToken] = request.headers['access_token']?.split(' ') ?? [];
+    const [refreshType, refreshToken] = request.headers['refresh_token']?.split(' ') ?? [];
     const isTokensBearer = [accessType, refreshType].every((type) => type === BEARER_TOKEN_TYPE);
     const tokens: TokensDto = new TokensDto();
 
