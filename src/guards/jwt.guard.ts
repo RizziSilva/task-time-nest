@@ -2,7 +2,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
 import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { AuthService, UserService } from '@services';
@@ -100,8 +100,8 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokensFromHeader(request: Request): TokensDto {
-    const [accessType, accessToken] = request.headers['access_token']?.split(' ') ?? [];
-    const [refreshType, refreshToken] = request.headers['refresh_token']?.split(' ') ?? [];
+    const [accessType, accessToken] = request.cookies.access_token?.split(' ') ?? [];
+    const [refreshType, refreshToken] = request.cookies.refresh_token?.split(' ') ?? [];
     const isTokensBearer = [accessType, refreshType].every((type) => type === BEARER_TOKEN_TYPE);
     const tokens: TokensDto = new TokensDto();
 
