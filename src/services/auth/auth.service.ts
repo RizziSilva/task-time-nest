@@ -4,7 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
 import { AuthLoginResponseDto, LoginResponseDto } from '@dtos';
-import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_ACTION, UNAUTHORIZED_LOGIN } from '@constants';
+import {
+  ACCESS_TOKEN_EXPIRATION_TIME,
+  REFRESH_TOKEN_EXPIRATION_TIME,
+  UNAUTHORIZED_ACTION,
+  UNAUTHORIZED_LOGIN,
+} from '@constants';
 import { AuthMapper } from '@mappers';
 import { UnauthorizedException } from '@exceptions';
 import { UserService } from '../user/user.service';
@@ -56,6 +61,7 @@ export class AuthService {
       { id: user.id },
       {
         secret: this.configService.get<string>('JWT_KEY'),
+        expiresIn: ACCESS_TOKEN_EXPIRATION_TIME,
       },
     );
     const refreshToken: string = await this.jwtService.signAsync(

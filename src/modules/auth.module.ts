@@ -8,13 +8,7 @@ import { ACCESS_TOKEN_EXPIRATION_TIME } from '@constants';
 import { UserModule } from './user.module';
 
 @Module({
-  imports: [
-    forwardRef(() => UserModule),
-    PassportModule,
-    JwtModule.register({
-      signOptions: { expiresIn: ACCESS_TOKEN_EXPIRATION_TIME },
-    }),
-  ],
+  imports: [forwardRef(() => UserModule), PassportModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, AuthMapper, LocalStrategy, JwtStrategy],
   exports: [AuthService],

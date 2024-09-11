@@ -2,7 +2,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { Response, Request } from 'express';
+import { Response, Request, CookieOptions } from 'express';
 import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
 import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { AuthService, UserService } from '@services';
@@ -88,10 +88,17 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
       });
 
       const loginResponse: LoginResponseDto = await this.authService.login(userAuthResponse);
+      const cookieOptions: CookieOptions = {
+        domain: this.configService.get<string>('REQUEST_ORIGIN'),
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      };
 
       request['user'] = userAuthResponse;
-      response.setHeader('access_token', loginResponse.token.access_token);
-      response.setHeader('refresh_token', loginResponse.token.refresh_token);
+      response.cookie('access_token', loginResponse.token.access_token, cookieOptions);
+      response.cookie('refresh_token', loginResponse.token.refresh_token, cookieOptions);
 
       return true;
     } catch (error) {
