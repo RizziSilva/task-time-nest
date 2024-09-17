@@ -26,7 +26,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     const request: Request = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
     const tokens: TokensDto = this.extractTokensFromHeader(request);
-
+    console.log('request', request);
     if (!tokens?.access_token) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
     try {
