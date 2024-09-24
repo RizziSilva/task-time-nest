@@ -62,13 +62,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
 
       return true;
     } catch (error) {
-      const isValid: boolean = await this.handleRefreshToken(
-        request,
-        response,
-        tokens.refresh_token,
-      );
-
-      return isValid;
+      throw error;
     }
   }
 
@@ -101,13 +95,14 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
 
   private extractTokensFromHeader(request: Request): TokensDto {
     const [accessType, accessToken] = request.headers['authorization']?.split(' ') ?? [];
-    const [refreshType, refreshToken] = request.headers['refreshtoken']?.split(' ') ?? [];
-    const isTokensBearer = [accessType, refreshType].every((type) => type === BEARER_TOKEN_TYPE);
+    const isTokensBearer = accessType === BEARER_TOKEN_TYPE;
+
+    if (!isTokensBearer) return undefined;
+
     const tokens: TokensDto = new TokensDto();
 
     tokens.access_token = accessToken;
-    tokens.refresh_token = refreshToken;
 
-    return isTokensBearer ? tokens : undefined;
+    return tokens;
   }
 }
