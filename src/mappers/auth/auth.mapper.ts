@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { User } from '@entities';
 
 @Injectable()
@@ -12,11 +12,20 @@ export class AuthMapper {
     return response;
   }
 
-  fromTokensToTokensDto(accessToken: string, refreshToken: string): TokensDto {
-    const response: TokensDto = new TokensDto();
+  fromTokensAndUserToLoginResponseDto(
+    accessToken: string,
+    refreshToken: string,
+    user: User,
+  ): LoginResponseDto {
+    const response: LoginResponseDto = new LoginResponseDto();
+    const tokens: TokensDto = new TokensDto();
 
-    response.access_token = accessToken;
-    response.refresh_token = refreshToken;
+    tokens.access_token = accessToken;
+    tokens.refresh_token = refreshToken;
+
+    response.token = tokens;
+    response.email = user.email;
+    response.name = user.name;
 
     return response;
   }

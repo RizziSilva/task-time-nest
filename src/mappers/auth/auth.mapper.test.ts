@@ -1,4 +1,4 @@
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { User } from '@entities';
 import { AuthMapper } from './auth.mapper';
 
@@ -27,11 +27,20 @@ describe('AuthMapper Tests', () => {
     it('Convert tokens to tokensDto', () => {
       const accessToken: string = 'AccessToken';
       const refreshToken: string = 'RefreshToken';
-      const expected: TokensDto = new TokensDto();
-      expected.access_token = accessToken;
-      expected.refresh_token = refreshToken;
+      const tokens: TokensDto = new TokensDto();
+      const user: User = new User();
+      const expected: LoginResponseDto = new LoginResponseDto();
 
-      const result: TokensDto = authMapper.fromTokensToTokensDto(accessToken, refreshToken);
+      tokens.access_token = accessToken;
+      tokens.refresh_token = refreshToken;
+
+      expected.token = tokens;
+
+      const result: LoginResponseDto = authMapper.fromTokensAndUserToLoginResponseDto(
+        accessToken,
+        refreshToken,
+        user,
+      );
 
       expect(result).toEqual(expected);
     });

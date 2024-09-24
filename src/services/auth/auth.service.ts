@@ -3,11 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
-import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_ACTION, UNAUTHORIZED_LOGIN } from '@constants';
+import { AuthLoginResponseDto, LoginResponseDto } from '@dtos';
+import {
+  ACCESS_TOKEN_EXPIRATION_TIME,
+  REFRESH_TOKEN_EXPIRATION_TIME,
+  UNAUTHORIZED_ACTION,
+  UNAUTHORIZED_LOGIN,
+} from '@constants';
 import { AuthMapper } from '@mappers';
-import { UserService } from '../user/user.service';
 import { UnauthorizedException } from '@exceptions';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -51,11 +56,12 @@ export class AuthService {
     }
   }
 
-  async login(user: AuthLoginResponseDto): Promise<TokensDto> {
+  async login(user: AuthLoginResponseDto): Promise<LoginResponseDto> {
     const accessToken: string = await this.jwtService.signAsync(
       { id: user.id },
       {
         secret: this.configService.get<string>('JWT_KEY'),
+        expiresIn: ACCESS_TOKEN_EXPIRATION_TIME,
       },
     );
     const refreshToken: string = await this.jwtService.signAsync(
@@ -65,8 +71,12 @@ export class AuthService {
         expiresIn: REFRESH_TOKEN_EXPIRATION_TIME,
       },
     );
-
-    const response: TokensDto = this.authMapper.fromTokensToTokensDto(accessToken, refreshToken);
+    const userEntity: User = await this.userService.findOneById(user.id);
+    const response: LoginResponseDto = this.authMapper.fromTokensAndUserToLoginResponseDto(
+      accessToken,
+      refreshToken,
+      userEntity,
+    );
     await this.userService.updateRefreshToken(user.id, refreshToken);
 
     return response;

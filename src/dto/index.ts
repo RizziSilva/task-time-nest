@@ -5,7 +5,7 @@ export {
   UserUpdateResponseDto,
   GetUserResponseDto,
 } from './user';
-export { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from './auth';
+export { AuthLoginRequestDto, TokensDto } from './auth';
 export {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
@@ -25,3 +25,5 @@ export {
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from './task-time';
+export { AuthLoginResponseDto } from './passport/index';
+export { LoginResponseDto } from './auth';

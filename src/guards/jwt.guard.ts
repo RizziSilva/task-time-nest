@@ -2,9 +2,9 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import { Response, Request, CookieOptions } from 'express';
 import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
-import { AuthLoginResponseDto, TokensDto } from '@dtos';
+import { AuthLoginResponseDto, TokensDto, LoginResponseDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
 import { UnauthorizedActionException } from '@exceptions';
@@ -26,7 +26,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
     const request: Request = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
     const tokens: TokensDto = this.extractTokensFromHeader(request);
-
+    console.log('request', request);
     if (!tokens?.access_token) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
     try {
@@ -87,11 +87,18 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
       });
 
-      const tokens: TokensDto = await this.authService.login(userAuthResponse);
+      const loginResponse: LoginResponseDto = await this.authService.login(userAuthResponse);
+      const cookieOptions: CookieOptions = {
+        domain: this.configService.get<string>('REQUEST_ORIGIN'),
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      };
 
       request['user'] = userAuthResponse;
-      response.setHeader('access_token', tokens.access_token);
-      response.setHeader('refresh_token', tokens.refresh_token);
+      response.cookie('access_token', loginResponse.token.access_token, cookieOptions);
+      response.cookie('refresh_token', loginResponse.token.refresh_token, cookieOptions);
 
       return true;
     } catch (error) {
@@ -100,8 +107,8 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokensFromHeader(request: Request): TokensDto {
-    const [accessType, accessToken] = request.headers['authorization']?.split(' ') ?? [];
-    const [refreshType, refreshToken] = request.headers['refreshtoken']?.split(' ') ?? [];
+    const [accessType, accessToken] = request.cookies.access_token?.split(' ') ?? [];
+    const [refreshType, refreshToken] = request.cookies.refresh_token?.split(' ') ?? [];
     const isTokensBearer = [accessType, refreshType].every((type) => type === BEARER_TOKEN_TYPE);
     const tokens: TokensDto = new TokensDto();
 
