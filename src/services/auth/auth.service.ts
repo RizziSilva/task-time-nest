@@ -75,10 +75,11 @@ export class AuthService {
 
   async refresh(request: Request, response: Response) {
     try {
-      const refreshToken: string = request.cookies['refresh_token'];
-      console.log('test');
-      if (!refreshToken) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
+      const requestToken: string = request.cookies['refresh_token'];
 
+      if (!requestToken) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
+
+      const [_, refreshToken] = requestToken.split(' ') ?? [];
       const payload: AuthLoginResponseDto = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
       });
@@ -98,6 +99,7 @@ export class AuthService {
       response.cookie('access_token', tokens.access_token, cookieOptions);
       response.cookie('refresh_token', tokens.refresh_token, cookieOptions);
     } catch (error) {
+      console.error(error);
       throw new UnauthorizedActionException(error);
     }
   }

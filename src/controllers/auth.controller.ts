@@ -18,10 +18,10 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('/refresh')
-  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    console.log('request', request.rawHeaders);
-    console.log('request', request.headers.cookie);
-
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
     return await this.authService.refresh(request, response);
   }
 }
