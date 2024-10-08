@@ -5,10 +5,15 @@ import { Request, Response, CookieOptions } from 'express';
 import { compare } from 'bcrypt';
 import { User } from '@entities';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
-import { REFRESH_TOKEN_EXPIRATION_TIME, UNAUTHORIZED_ACTION, UNAUTHORIZED_LOGIN } from '@constants';
+import {
+  COOKIES_KEYS,
+  REFRESH_TOKEN_EXPIRATION_TIME,
+  UNAUTHORIZED_ACTION,
+  UNAUTHORIZED_LOGIN,
+} from '@constants';
+import { UnauthorizedActionException, UnauthorizedException } from '@exceptions';
 import { AuthMapper } from '@mappers';
 import { UserService } from '../user/user.service';
-import { UnauthorizedActionException, UnauthorizedException } from '@exceptions';
 
 @Injectable()
 export class AuthService {
@@ -73,9 +78,9 @@ export class AuthService {
     return response;
   }
 
-  async refresh(request: Request, response: Response) {
+  async refresh(request: Request, response: Response): Promise<void> {
     try {
-      const requestToken: string = request.cookies['refresh_token'];
+      const requestToken: string = request.cookies[COOKIES_KEYS.REFRESH];
 
       if (!requestToken) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
@@ -83,7 +88,7 @@ export class AuthService {
       const payload: AuthLoginResponseDto = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_KEY_REFRESH'),
       });
-      const user = await this.userService.findOneById(payload.id);
+      const user: User = await this.userService.findOneById(payload.id);
 
       if (!user) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
@@ -96,10 +101,9 @@ export class AuthService {
         sameSite: 'lax',
       };
 
-      response.cookie('access_token', tokens.access_token, cookieOptions);
-      response.cookie('refresh_token', tokens.refresh_token, cookieOptions);
+      response.cookie(COOKIES_KEYS.ACCESS, tokens.access_token, cookieOptions);
+      response.cookie(COOKIES_KEYS.REFRESH, tokens.refresh_token, cookieOptions);
     } catch (error) {
-      console.error(error);
       throw new UnauthorizedActionException(error);
     }
   }

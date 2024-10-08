@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
-import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
+import { BEARER_TOKEN_TYPE, COOKIES_KEYS, UNAUTHORIZED_ACTION } from '@constants';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
@@ -84,8 +84,8 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
       const tokens: TokensDto = await this.authService.login(userAuthResponse);
 
       request['user'] = userAuthResponse;
-      response.setHeader('access_token', tokens.access_token);
-      response.setHeader('refresh_token', tokens.refresh_token);
+      response.setHeader(COOKIES_KEYS.ACCESS, tokens.access_token);
+      response.setHeader(COOKIES_KEYS.REFRESH, tokens.refresh_token);
 
       return true;
     } catch (error) {
@@ -94,7 +94,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokensFromHeader(request: Request): TokensDto {
-    const [accessType, accessToken] = request.cookies['access_token']?.split(' ') ?? [];
+    const [accessType, accessToken] = request.cookies[COOKIES_KEYS.ACCESS]?.split(' ') ?? [];
     const isTokensBearer = accessType === BEARER_TOKEN_TYPE;
 
     if (!isTokensBearer) return undefined;
