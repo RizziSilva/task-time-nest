@@ -3,14 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
+import { CookieOptions, Request, Response } from 'express';
 import { AuthController } from '@controllers';
 import { AuthLoginRequestDto, AuthLoginResponseDto, TokensDto } from '@dtos';
 import { User } from '@entities';
-import { UnauthorizedException } from '@exceptions';
+import { UnauthorizedActionException, UnauthorizedException } from '@exceptions';
 import { AuthMapper, UserMapper } from '@mappers';
 import { UserValidator } from '@validators';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
+import { BEARER_TOKEN_TYPE, COOKIES_KEYS } from '@constants';
 
 describe('AuthService Tests', () => {
   let authService: AuthService;
@@ -146,6 +148,66 @@ describe('AuthService Tests', () => {
       expect(userService.findOneByEmail).toHaveBeenCalledWith(request.email);
       expect(bcrypt.compare).toHaveBeenCalled();
       expect(authMapper.fromUserToAuthLoginResponse).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('refresh Tests', () => {
+    it('Refresh token without refresh token throw error', async () => {
+      const response: Response = {} as Response;
+      const request: Request = { cookies: {} } as Request;
+
+      jest.spyOn(userService, 'findOneById');
+
+      await expect(authService.refresh(request, response)).rejects.toThrow(
+        UnauthorizedActionException,
+      );
+      expect(userService.findOneById).not.toHaveBeenCalled();
+    });
+
+    it('Refresh token without finded user by id throw error', async () => {
+      const response: Response = {} as Response;
+      const request: Request = {
+        cookies: { [COOKIES_KEYS.REFRESH]: `${BEARER_TOKEN_TYPE} cookie` },
+      } as Request;
+      const verifyResolvedValue: AuthLoginResponseDto = { id: 1 };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValueOnce(verifyResolvedValue);
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(null);
+
+      await expect(authService.refresh(request, response)).rejects.toThrow(
+        UnauthorizedActionException,
+      );
+      expect(userService.findOneById).toHaveBeenCalledWith(verifyResolvedValue.id);
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+    });
+
+    it('Refresh token with success', async () => {
+      const response: Response = {
+        cookie: (name: string, val: string, options: CookieOptions) => {},
+      } as Response;
+      const request: Request = {
+        cookies: { [COOKIES_KEYS.REFRESH]: `${BEARER_TOKEN_TYPE} cookie` },
+      } as Request;
+      const verifyResolvedValue: AuthLoginResponseDto = { id: 1 };
+      const user: User = new User();
+      const tokens: TokensDto = {
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+      };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValueOnce(verifyResolvedValue);
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(user);
+      jest.spyOn(authService, 'login').mockResolvedValueOnce(tokens);
+      jest.spyOn(response, 'cookie').mockImplementation(() => {
+        return response;
+      });
+
+      await authService.refresh(request, response);
+
+      expect(userService.findOneById).toHaveBeenCalledWith(verifyResolvedValue.id);
+      expect(authService.login).toHaveBeenCalledWith(verifyResolvedValue);
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+      expect(response.cookie).toHaveBeenCalledTimes(2);
     });
   });
 });

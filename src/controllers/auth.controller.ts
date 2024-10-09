@@ -1,4 +1,5 @@
-import { Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { RequestLoginUser } from '@decorators';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService } from '@services';
@@ -13,5 +14,14 @@ export class AuthController {
   @Post('/login')
   async login(@RequestLoginUser() user: AuthLoginResponseDto): Promise<TokensDto> {
     return await this.authService.login(user);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/refresh')
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    return await this.authService.refresh(request, response);
   }
 }

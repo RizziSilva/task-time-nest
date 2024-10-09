@@ -3,6 +3,11 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  coveragePathIgnorePatterns: [
+    '<rootDir>/src/guards/',
+    '<rootDir>/src/decorators/',
+    '<rootDir>/src/services/passaport/',
+  ],
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
   moduleNameMapper: {
     '@modules': '<rootDir>/src/modules',

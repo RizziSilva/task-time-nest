@@ -2,8 +2,8 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
-import { BEARER_TOKEN_TYPE, UNAUTHORIZED_ACTION } from '@constants';
+import { Response, Request } from 'express';
+import { BEARER_TOKEN_TYPE, COOKIES_KEYS, UNAUTHORIZED_ACTION } from '@constants';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import { AuthService, UserService } from '@services';
 import { User } from '@entities';
@@ -62,13 +62,7 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
 
       return true;
     } catch (error) {
-      const isValid: boolean = await this.handleRefreshToken(
-        request,
-        response,
-        tokens.refresh_token,
-      );
-
-      return isValid;
+      throw error;
     }
   }
 
@@ -90,8 +84,8 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
       const tokens: TokensDto = await this.authService.login(userAuthResponse);
 
       request['user'] = userAuthResponse;
-      response.setHeader('access_token', tokens.access_token);
-      response.setHeader('refresh_token', tokens.refresh_token);
+      response.setHeader(COOKIES_KEYS.ACCESS, tokens.access_token);
+      response.setHeader(COOKIES_KEYS.REFRESH, tokens.refresh_token);
 
       return true;
     } catch (error) {
@@ -100,14 +94,15 @@ export class UserJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokensFromHeader(request: Request): TokensDto {
-    const [accessType, accessToken] = request.headers['authorization']?.split(' ') ?? [];
-    const [refreshType, refreshToken] = request.headers['refreshtoken']?.split(' ') ?? [];
-    const isTokensBearer = [accessType, refreshType].every((type) => type === BEARER_TOKEN_TYPE);
+    const [accessType, accessToken] = request.cookies[COOKIES_KEYS.ACCESS]?.split(' ') ?? [];
+    const isTokensBearer = accessType === BEARER_TOKEN_TYPE;
+
+    if (!isTokensBearer) return undefined;
+
     const tokens: TokensDto = new TokensDto();
 
     tokens.access_token = accessToken;
-    tokens.refresh_token = refreshToken;
 
-    return isTokensBearer ? tokens : undefined;
+    return tokens;
   }
 }
