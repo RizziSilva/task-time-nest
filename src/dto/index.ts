@@ -24,4 +24,5 @@ export {
   CreateTaskTimeRequestDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
+  GetPaginatedTaskTimeRequestDto,
 } from './task-time';
