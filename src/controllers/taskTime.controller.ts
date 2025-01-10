@@ -15,8 +15,8 @@ import {
   AuthLoginResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
-  GetPaginatedTaskRequestDto,
   GetPaginatedTaskTimeRequestDto,
+  GetPaginatedTaskTimesResponseDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
@@ -60,7 +60,7 @@ export class TaskTimeController {
   async getTaskPaginated(
     @RequestUser() user: AuthLoginResponseDto,
     @Query() request: GetPaginatedTaskTimeRequestDto,
-  ): Promise<GetPaginatedTaskResponseDto> {
-    return await this.taskService.getPaginatedTasks(request, user);
+  ): Promise<GetPaginatedTaskTimesResponseDto> {
+    return await this.taskTimeService.getPaginatedTaskTime(user, request);
   }
 }

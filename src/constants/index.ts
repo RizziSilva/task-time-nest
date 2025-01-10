@@ -53,4 +53,4 @@ export {
   DELETE_TASK_TIME_NOT_FOUND,
 } from './task-time/exception.constant';
 export { ONE_MINUTE_IN_SECONDS, ONE_HOURS_IN_MINUTES } from './task-time/test.constant';
-export { NUMBER_OF_ENTRIES_PER_PAGE } from './task/pagination.constant';
+export { NUMBER_OF_ENTRIES_PER_PAGE } from './task-time/pagination.constant';

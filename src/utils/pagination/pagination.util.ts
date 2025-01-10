@@ -1,8 +1,8 @@
 import { NUMBER_OF_ENTRIES_PER_PAGE } from '@constants';
-import { TasksPagination } from '@interfaces';
+import { TaskTimePaginationDto } from '@dtos';
 
-export function getTaskOffsetByPage(page: number): TasksPagination {
-  const pagination: TasksPagination = new TasksPagination();
+export function getTaskOffsetByPage(page: number): TaskTimePaginationDto {
+  const pagination: TaskTimePaginationDto = new TaskTimePaginationDto();
 
   pagination.end = page * NUMBER_OF_ENTRIES_PER_PAGE;
   pagination.initial = pagination.end - NUMBER_OF_ENTRIES_PER_PAGE;

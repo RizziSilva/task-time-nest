@@ -1,15 +1,13 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task, TaskTime } from '@entities';
+import { Task } from '@entities';
 import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
-  GetPaginatedTaskRequestDto,
-  GetPaginatedTaskResponseDto,
   GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
@@ -23,8 +21,7 @@ import {
   NUMBER_OF_ENTRIES_PER_PAGE,
   UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
 } from '@constants';
-import { TaskAndTime, TasksPagination, UpdateTask } from '@interfaces';
-import { getTaskOffsetByPage } from '@utils';
+import { TasksPagination, UpdateTask } from '@interfaces';
 import { TaskTimeService } from '../task-time/taskTime.service';
 
 @Injectable()
@@ -82,26 +79,6 @@ export class TaskService {
     await this.taskRepository.remove(task);
   }
 
-  async getPaginatedTasks(
-    request: GetPaginatedTaskRequestDto,
-    user: AuthLoginResponseDto,
-  ): Promise<GetPaginatedTaskResponseDto> {
-    const pagination: TasksPagination = getTaskOffsetByPage(request.page);
-    const taskAndTimes: Array<Task> = await this.getTasksAndTaskTimesByUserAndPage(
-      user.id,
-      pagination,
-    );
-    const userNumberOfTasks: number = await this.countTasksByUserId(user.id);
-    const response: GetPaginatedTaskResponseDto =
-      this.taskMapper.fromTasksToGetPaginatedTasksResponse(
-        taskAndTimes,
-        request.page,
-        userNumberOfTasks,
-      );
-
-    return response;
-  }
-
   async getTask(taskId: number): Promise<GetTaskResponseDto> {
     this.taskValidator.validateGetTask(taskId);
 
@@ -128,23 +105,6 @@ export class TaskService {
     const task: Task = await this.findOneById(id);
 
     return task;
-  }
-
-  async getTasksAndTaskTimesByUserAndPage(
-    userId: number,
-    pagination: TasksPagination,
-  ): Promise<Array<Task>> {
-    return await this.taskRepository.find({
-      relations: {
-        times: true,
-      },
-      where: [{ idUser: userId }],
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: pagination.initial,
-      take: NUMBER_OF_ENTRIES_PER_PAGE,
-    });
   }
 
   async countTasksByUserId(idUser: number): Promise<number> {

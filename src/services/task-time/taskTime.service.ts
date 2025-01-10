@@ -2,7 +2,11 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
+  AuthLoginResponseDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskTimeRequestDto,
+  GetPaginatedTaskTimesResponseDto,
+  TaskTimePaginationDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
@@ -10,7 +14,7 @@ import { Task, TaskTime } from '@entities';
 import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
-import { calculateDifferenceInSeconds } from '@utils';
+import { calculateDifferenceInSeconds, getTaskOffsetByPage } from '@utils';
 import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
 import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
 import { TaskService } from '../task/task.service';
@@ -84,5 +88,14 @@ export class TaskTimeService {
     const taskTime: TaskTime = await this.findOneById(id);
 
     return taskTime;
+  }
+
+  async getPaginatedTaskTime(
+    usere: AuthLoginResponseDto,
+    request: GetPaginatedTaskTimeRequestDto,
+  ): Promise<GetPaginatedTaskTimesResponseDto> {
+    const pagination: TaskTimePaginationDto = getTaskOffsetByPage(request.page);
+
+    return;
   }
 }

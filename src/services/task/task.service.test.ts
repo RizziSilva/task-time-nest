@@ -13,8 +13,6 @@ import {
   CreateTaskResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
-  GetPaginatedTaskRequestDto,
-  GetPaginatedTaskResponseDto,
   GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
@@ -263,42 +261,6 @@ describe('TaskService Tests', () => {
       expect(result).toBe(task);
       expect(taskRepository.update).toHaveBeenCalledWith({ id: taskId }, { ...updateTask });
       expect(taskService.findOneById).toHaveBeenCalledWith(taskId);
-    });
-  });
-
-  describe('getPaginatedTasks tests', () => {
-    it('Get paginated user tasks with success', async () => {
-      const user: AuthLoginResponseDto = new AuthLoginResponseDto();
-      user.id = 1;
-
-      const request: GetPaginatedTaskRequestDto = new GetPaginatedTaskRequestDto();
-
-      request.page = 1;
-
-      const userNumberOfTasks: number = 10;
-      const tasks: Array<Task> = new Array<Task>();
-      const response: GetPaginatedTaskResponseDto = new GetPaginatedTaskResponseDto();
-
-      jest.spyOn(taskService, 'countTasksByUserId').mockResolvedValueOnce(userNumberOfTasks);
-      jest.spyOn(taskService, 'getTasksAndTaskTimesByUserAndPage').mockResolvedValueOnce(tasks);
-      jest
-        .spyOn(taskMapper, 'fromTasksToGetPaginatedTasksResponse')
-        .mockImplementationOnce(() => response);
-
-      const result: GetPaginatedTaskResponseDto = await taskService.getPaginatedTasks(
-        request,
-        user,
-      );
-
-      expect(result).toEqual(response);
-      expect(taskService.countTasksByUserId).toHaveBeenCalledWith(user.id);
-      expect(taskService.getTasksAndTaskTimesByUserAndPage).toHaveBeenCalled();
-      expect(taskMapper.fromTasksToGetPaginatedTasksResponse).toHaveBeenCalledWith(
-        tasks,
-        request.page,
-        userNumberOfTasks,
-      );
-      expect(getTaskOffsetByPage).toHaveBeenCalledWith(request.page);
     });
   });
 
