@@ -1,7 +1,10 @@
-import { DATE_TIME_FORMAT } from '@constants';
+import { DATE_TIME_FORMAT, NUMBER_OF_ENTRIES_PER_PAGE } from '@constants';
 import {
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskDto,
+  GetPaginatedTaskTimesResponseDto,
+  TaskTimeDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
@@ -64,5 +67,45 @@ export class TaskTimeMapper {
     response.endedAt = taskTime.endedAt;
 
     return response;
+  }
+
+  fromTaskTimesToGetPaginatedTaskTimesResponse(
+    taskTimes: Array<TaskTime>,
+    userNumberOfTaskTimes: number,
+    page: number,
+  ): GetPaginatedTaskTimesResponseDto {
+    const response: GetPaginatedTaskTimesResponseDto = new GetPaginatedTaskTimesResponseDto();
+    const totalTasksReturned: number = page * NUMBER_OF_ENTRIES_PER_PAGE;
+
+    response.taskTimes = this.fromTaskTimesToTaskTimeDto(taskTimes);
+    response.page = page;
+    response.isLastPage = totalTasksReturned >= userNumberOfTaskTimes;
+
+    return response;
+  }
+
+  private fromTaskTimesToTaskTimeDto(taskTimes: Array<TaskTime>): Array<TaskTimeDto> {
+    return taskTimes.map((taskTime: TaskTime) => {
+      const taskTimeDto: TaskTimeDto = new TaskTimeDto();
+
+      taskTimeDto.endedAt = taskTime.endedAt;
+      taskTimeDto.initiatedAt = taskTime.initiatedAt;
+      taskTimeDto.totalTimeSpent = taskTime.timeSpent;
+      taskTimeDto.id = taskTime.id;
+      taskTimeDto.task = this.fromTaskToGetPaginatedTaskDto(taskTime.task);
+
+      return taskTimeDto;
+    });
+  }
+
+  private fromTaskToGetPaginatedTaskDto(task: Task): GetPaginatedTaskDto {
+    const getPaginatedTaskDto: GetPaginatedTaskDto = new GetPaginatedTaskDto();
+
+    getPaginatedTaskDto.description = task.description;
+    getPaginatedTaskDto.link = task.link;
+    getPaginatedTaskDto.title = task.title;
+    getPaginatedTaskDto.id = task.id;
+
+    return getPaginatedTaskDto;
   }
 }

@@ -18,10 +18,9 @@ import { TaskMapper } from '@mappers';
 import {
   DELETE_TASK_NOT_FOUND,
   GET_TASK_NOT_FOUND,
-  NUMBER_OF_ENTRIES_PER_PAGE,
   UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
 } from '@constants';
-import { TasksPagination, UpdateTask } from '@interfaces';
+import { UpdateTask } from '@interfaces';
 import { TaskTimeService } from '../task-time/taskTime.service';
 
 @Injectable()
@@ -105,11 +104,5 @@ export class TaskService {
     const task: Task = await this.findOneById(id);
 
     return task;
-  }
-
-  async countTasksByUserId(idUser: number): Promise<number> {
-    const numberOfTasks: number = await this.taskRepository.count({ where: [{ idUser }] });
-
-    return numberOfTasks;
   }
 }

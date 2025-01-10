@@ -17,23 +17,17 @@ import {
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
 } from '@dtos';
-import { TasksPagination, UpdateTask } from '@interfaces';
+import { UpdateTask } from '@interfaces';
 import { DeleteTaskException, GetTaskException, UpdateTaskException } from '@exceptions';
 import {
   DELETE_TASK_NOT_FOUND,
   GET_TASK_NOT_FOUND,
   UPDATE_TASK_EXCEPTION_TASK_NOT_FOUND,
 } from '@constants';
-import { getTaskOffsetByPage } from '@utils';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
 import { TaskService } from './task.service';
 import { TaskTimeService } from '../task-time/taskTime.service';
-
-jest.mock('@utils', () => ({
-  ...jest.requireActual('@utils'),
-  getTaskOffsetByPage: jest.fn(() => new TasksPagination()),
-}));
 
 describe('TaskService Tests', () => {
   let taskService: TaskService;

@@ -14,9 +14,13 @@ import { Task, TaskTime } from '@entities';
 import { CreateTaskTimeRequestDto } from '@dtos';
 import { TaskTimeValidator } from '@validators';
 import { TaskTimeMapper } from '@mappers';
-import { calculateDifferenceInSeconds, getTaskOffsetByPage } from '@utils';
+import { calculateDifferenceInSeconds, getTaskTimeOffsetByPage } from '@utils';
 import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
-import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
+import {
+  DELETE_TASK_TIME_NOT_FOUND,
+  NUMBER_OF_ENTRIES_PER_PAGE,
+  UPDATE_TASK_TIME_MISSING_TASK_TIME,
+} from '@constants';
 import { TaskService } from '../task/task.service';
 
 @Injectable()
@@ -77,6 +81,26 @@ export class TaskTimeService {
     await this.taskTimeRepository.delete({ id: taskTimeId });
   }
 
+  async getPaginatedTaskTime(
+    user: AuthLoginResponseDto,
+    request: GetPaginatedTaskTimeRequestDto,
+  ): Promise<GetPaginatedTaskTimesResponseDto> {
+    const pagination: TaskTimePaginationDto = getTaskTimeOffsetByPage(request.page);
+    const taskTimes: Array<TaskTime> = await this.getTaskTimesAndTaskByUserAndPage(
+      user.id,
+      pagination,
+    );
+    const userNumberOfTaskTimes: number = await this.countUserNumberOfTaskTimes(user.id);
+    const response: GetPaginatedTaskTimesResponseDto =
+      this.taskTimeMapper.fromTaskTimesToGetPaginatedTaskTimesResponse(
+        taskTimes,
+        userNumberOfTaskTimes,
+        request.page,
+      );
+
+    return response;
+  }
+
   async findOneById(id: number): Promise<TaskTime> {
     const taskTime: TaskTime = await this.taskTimeRepository.findOneBy({ id });
 
@@ -90,12 +114,34 @@ export class TaskTimeService {
     return taskTime;
   }
 
-  async getPaginatedTaskTime(
-    usere: AuthLoginResponseDto,
-    request: GetPaginatedTaskTimeRequestDto,
-  ): Promise<GetPaginatedTaskTimesResponseDto> {
-    const pagination: TaskTimePaginationDto = getTaskOffsetByPage(request.page);
+  async getTaskTimesAndTaskByUserAndPage(
+    userId: number,
+    pagination: TaskTimePaginationDto,
+  ): Promise<Array<TaskTime>> {
+    return await this.taskTimeRepository.find({
+      relations: {
+        task: true,
+      },
+      where: [
+        {
+          task: {
+            idUser: userId,
+          },
+        },
+      ],
+      order: {
+        endedAt: 'DESC',
+      },
+      skip: pagination.initial,
+      take: NUMBER_OF_ENTRIES_PER_PAGE,
+    });
+  }
 
-    return;
+  async countUserNumberOfTaskTimes(userId: number): Promise<number> {
+    const numberOfTaskTimes: number = await this.taskTimeRepository.count({
+      where: [{ task: { idUser: userId } }],
+    });
+
+    return numberOfTaskTimes;
   }
 }

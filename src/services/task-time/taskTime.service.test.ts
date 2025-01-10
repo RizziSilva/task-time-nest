@@ -8,12 +8,17 @@ import { Task, TaskTime, User } from '@entities';
 import { AuthMapper, TaskMapper, TaskTimeMapper, UserMapper } from '@mappers';
 import { TaskTimeValidator, TaskValidator, UserValidator } from '@validators';
 import {
+  AuthLoginResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskTimeRequestDto,
+  GetPaginatedTaskTimesResponseDto,
+  TaskTimeDto,
+  TaskTimePaginationDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
-import { calculateDifferenceInSeconds } from '@utils';
+import { calculateDifferenceInSeconds, getTaskTimeOffsetByPage } from '@utils';
 import { DeleteTaskTimeException, UpdateTaskTimeException } from '@exceptions';
 import { DELETE_TASK_TIME_NOT_FOUND, UPDATE_TASK_TIME_MISSING_TASK_TIME } from '@constants';
 import { TaskTimeService } from './taskTime.service';
@@ -24,6 +29,7 @@ import { TaskService } from '../task/task.service';
 jest.mock('@utils', () => ({
   ...jest.requireActual('@utils'),
   calculateDifferenceInSeconds: jest.fn(() => 60),
+  getTaskTimeOffsetByPage: jest.fn(() => new TaskTimePaginationDto()),
 }));
 
 describe('TaskTime service tests', () => {
@@ -211,6 +217,53 @@ describe('TaskTime service tests', () => {
       expect(result).toBe(taskTime);
       expect(taskTimeService.findOneById).toHaveBeenCalledWith(taskTimeId);
       expect(taskTimeRepository.update).toHaveBeenCalledWith({ id: taskTimeId }, taskTime);
+    });
+  });
+
+  describe('getPaginatedTaskTime tests', () => {
+    it('Get paginated task times with success', async () => {
+      const user: AuthLoginResponseDto = new AuthLoginResponseDto();
+      user.id = 1;
+
+      const request: GetPaginatedTaskTimeRequestDto = new GetPaginatedTaskTimeRequestDto();
+
+      request.page = 1;
+
+      const userNumberOfTaskTimes: number = 1;
+      const taskTime: TaskTime = new TaskTime();
+      const taskTimes: Array<TaskTime> = [taskTime];
+      const taskTimesDto: TaskTimeDto = new TaskTimeDto();
+      const taskTimesDtos: Array<TaskTimeDto> = [taskTimesDto];
+      const response: GetPaginatedTaskTimesResponseDto = new GetPaginatedTaskTimesResponseDto();
+
+      response.isLastPage = true;
+      response.page = request.page;
+      response.taskTimes = taskTimesDtos;
+
+      jest
+        .spyOn(taskTimeService, 'countUserNumberOfTaskTimes')
+        .mockResolvedValueOnce(userNumberOfTaskTimes);
+      jest
+        .spyOn(taskTimeService, 'getTaskTimesAndTaskByUserAndPage')
+        .mockResolvedValueOnce(taskTimes);
+      jest
+        .spyOn(taskTimeMapper, 'fromTaskTimesToGetPaginatedTaskTimesResponse')
+        .mockReturnValueOnce(response);
+
+      const result: GetPaginatedTaskTimesResponseDto = await taskTimeService.getPaginatedTaskTime(
+        user,
+        request,
+      );
+
+      expect(result).toEqual(response);
+      expect(getTaskTimeOffsetByPage).toHaveBeenCalledWith(request.page);
+      expect(taskTimeService.countUserNumberOfTaskTimes).toHaveBeenCalledWith(user.id);
+      expect(taskTimeService.getTaskTimesAndTaskByUserAndPage).toHaveBeenCalled();
+      expect(taskTimeMapper.fromTaskTimesToGetPaginatedTaskTimesResponse).toHaveBeenCalledWith(
+        taskTimes,
+        userNumberOfTaskTimes,
+        request.page,
+      );
     });
   });
 });
