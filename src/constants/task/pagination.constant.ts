@@ -1,1 +1,0 @@
-export const NUMBER_OF_ENTRIES_PER_PAGE = 3;

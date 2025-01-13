@@ -2,21 +2,27 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
+  AuthLoginResponseDto,
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskTimeRequestDto,
+  GetPaginatedTaskTimesResponseDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
 import { UserJwtAuthGuard } from '@guards';
 import { TaskTimeService } from '@services';
+import { RequestUser } from '@decorators';
 
 @Controller('task-time')
 export class TaskTimeController {
@@ -46,5 +52,15 @@ export class TaskTimeController {
   @Delete(':taskTimeId')
   async deleteTaskTime(@Param('taskTimeId') taskTimeId: number): Promise<void> {
     await this.taskTimeService.deleteTaskTime(taskTimeId);
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('paginated')
+  async getTaskPaginated(
+    @RequestUser() user: AuthLoginResponseDto,
+    @Query() request: GetPaginatedTaskTimeRequestDto,
+  ): Promise<GetPaginatedTaskTimesResponseDto> {
+    return await this.taskTimeService.getPaginatedTaskTime(user, request);
   }
 }

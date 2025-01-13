@@ -2,3 +2,8 @@ export { CreateTaskTimeResponseDto } from './create/response.dto';
 export { CreateTaskTimeRequestDto } from './create/request.dto';
 export { UpdateTaskTimeRequestDto } from './update/request.dto';
 export { UpdateTaskTimeResponseDto } from './update/response.dto';
+export { GetPaginatedTaskTimeRequestDto } from './get-paginated/request.dto';
+export { GetPaginatedTaskTimesResponseDto } from './get-paginated/response.dto';
+export { GetPaginatedTaskDto } from './get-paginated/task.dto';
+export { TaskTimeDto } from './get-paginated/taskTime.dto';
+export { TaskTimePaginationDto } from './get-paginated/pagination.dto';

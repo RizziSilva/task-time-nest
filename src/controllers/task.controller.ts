@@ -16,8 +16,6 @@ import {
   AuthLoginResponseDto,
   CreateTaskRequestDto,
   CreateTaskResponseDto,
-  GetPaginatedTaskRequestDto,
-  GetPaginatedTaskResponseDto,
   GetTaskResponseDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
@@ -54,16 +52,6 @@ export class TaskController {
   @Delete(':taskId')
   async deleteTask(@Param('taskId') taskId: number): Promise<void> {
     await this.taskService.deleteTask(taskId);
-  }
-
-  @UseGuards(UserJwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get('paginated')
-  async getTaskPaginated(
-    @RequestUser() user: AuthLoginResponseDto,
-    @Query() request: GetPaginatedTaskRequestDto,
-  ): Promise<GetPaginatedTaskResponseDto> {
-    return await this.taskService.getPaginatedTasks(request, user);
   }
 
   @UseGuards(UserJwtAuthGuard)

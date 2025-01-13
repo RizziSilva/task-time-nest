@@ -2,11 +2,8 @@ import {
   CreateTaskRequestDto,
   CreateTaskResponseDto,
   CreateTaskTimeResponseDto,
-  GetPaginatedTaskResponseDto,
-  GetPaginatedTimesDto,
   GetTaskResponseDto,
   GetTimesDto,
-  TaskDto,
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
@@ -112,35 +109,6 @@ describe('TaskMapper tests', () => {
       const result: UpdateTaskResponseDto = taskMapper.fromTaskToTaskUpdateResponse(task);
 
       expect(result).toEqual(expected);
-    });
-  });
-
-  describe('fromTasksToGetPaginatedTasksResponse tests', () => {
-    it('Convert tasks to paginated response', () => {
-      const timeSpentPerEntry: number = 100;
-      const page: number = 1;
-      const userTotalTasks: number = 10;
-      const tasks: Array<Task> = new Array<Task>();
-      const task: Task = new Task();
-      const taskTime: TaskTime = new TaskTime();
-
-      taskTime.initiatedAt = '2024-02-26 10:30:18';
-      taskTime.endedAt = '2024-02-26 12:00:00';
-      taskTime.timeSpent = timeSpentPerEntry;
-
-      task.times = [taskTime, taskTime];
-
-      tasks.push(task, task);
-
-      const result: GetPaginatedTaskResponseDto = taskMapper.fromTasksToGetPaginatedTasksResponse(
-        tasks,
-        page,
-        userTotalTasks,
-      );
-
-      expect(result.tasks).toHaveLength(tasks.length);
-      expect(result.page).toEqual(1);
-      expect(result.isLastPage).toBeFalsy();
     });
   });
 

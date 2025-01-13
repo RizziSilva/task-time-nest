@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 import {
   CreateTaskTimeRequestDto,
   CreateTaskTimeResponseDto,
+  GetPaginatedTaskTimesResponseDto,
+  TaskTimeDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
 } from '@dtos';
@@ -100,6 +102,42 @@ describe('TaskTime mapper tests', () => {
         taskTimeMapper.fromTaskTimeToUpdateTaskTimeResponse(taskTime);
 
       expect(result).toEqual(taskTime);
+    });
+  });
+
+  describe('fromTaskTimesToGetPaginatedTaskTimesResponse tests', () => {
+    it('Converts task times to paginated task time response', () => {
+      const task: Task = new Task();
+      const taskTime: TaskTime = new TaskTime();
+
+      taskTime.timeSpent = 10;
+      taskTime.id = 2;
+      taskTime.task = task;
+
+      const taskTimeDto: TaskTimeDto = new TaskTimeDto();
+
+      taskTimeDto.totalTimeSpent = taskTime.timeSpent;
+      taskTimeDto.id = taskTime.id;
+      taskTimeDto.task = taskTime.task;
+
+      const taskTimes: Array<TaskTime> = [taskTime];
+      const userNumberOfTaskTimes: number = 1;
+      const page: number = 1;
+
+      const expected: GetPaginatedTaskTimesResponseDto = new GetPaginatedTaskTimesResponseDto();
+
+      expected.isLastPage = true;
+      expected.page = page;
+      expected.taskTimes = [taskTimeDto];
+
+      const result: GetPaginatedTaskTimesResponseDto =
+        taskTimeMapper.fromTaskTimesToGetPaginatedTaskTimesResponse(
+          taskTimes,
+          userNumberOfTaskTimes,
+          page,
+        );
+
+      expect(result).toEqual(expected);
     });
   });
 });

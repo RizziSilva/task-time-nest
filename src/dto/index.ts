@@ -12,10 +12,6 @@ export {
   TimesDto,
   UpdateTaskRequestDto,
   UpdateTaskResponseDto,
-  GetPaginatedTaskRequestDto,
-  GetPaginatedTaskResponseDto,
-  GetPaginatedTimesDto,
-  TaskDto,
   GetTaskResponseDto,
   GetTimesDto,
 } from './task';
@@ -24,4 +20,9 @@ export {
   CreateTaskTimeRequestDto,
   UpdateTaskTimeRequestDto,
   UpdateTaskTimeResponseDto,
+  GetPaginatedTaskTimeRequestDto,
+  GetPaginatedTaskTimesResponseDto,
+  GetPaginatedTaskDto,
+  TaskTimeDto,
+  TaskTimePaginationDto,
 } from './task-time';
