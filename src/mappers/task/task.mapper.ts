@@ -48,6 +48,7 @@ export class TaskMapper {
     times.initiatedAt = taskTime.initiatedAt;
     times.updatedAt = taskTime.updatedAt;
     times.timeSpent = taskTime.timeSpent;
+    times.id = taskTime.id;
 
     response.times = new Array(times);
 
