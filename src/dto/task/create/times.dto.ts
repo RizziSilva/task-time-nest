@@ -4,4 +4,5 @@ export class TimesDto {
   initiatedAt: string;
   endedAt: string;
   timeSpent: number;
+  id: number;
 }

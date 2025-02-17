@@ -5,4 +5,5 @@ export class CreateTaskTimeResponseDto {
   endedAt: string;
   taskId: number;
   timeSpent: number;
+  id: number;
 }

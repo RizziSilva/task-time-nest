@@ -51,16 +51,30 @@ describe('TaskTime mapper tests', () => {
 
   describe('fromTaskTimeToCreateTaskTimeResponse tests', () => {
     it('Converts task time to create task time response', () => {
+      const task: Task = new Task();
       const taskTime: TaskTime = new TaskTime();
+
+      task.id = 1;
 
       taskTime.timeSpent = 1234;
       taskTime.initiatedAt = '2024-02-26 10:30:18';
       taskTime.endedAt = '2024-02-26 12:00:00';
+      taskTime.task = task;
+
+      const expected: CreateTaskTimeResponseDto = {
+        createdAt: taskTime.createdAt,
+        endedAt: taskTime.endedAt,
+        id: taskTime.id,
+        initiatedAt: taskTime.initiatedAt,
+        taskId: taskTime.task.id,
+        timeSpent: taskTime.timeSpent,
+        updatedAt: taskTime.updatedAt,
+      };
 
       const result: CreateTaskTimeResponseDto =
         taskTimeMapper.fromTaskTimeToCreateTaskTimeResponse(taskTime);
 
-      expect(result).toEqual(taskTime);
+      expect(result).toEqual(expected);
     });
   });
 

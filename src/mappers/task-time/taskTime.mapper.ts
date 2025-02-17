@@ -38,6 +38,8 @@ export class TaskTimeMapper {
     response.initiatedAt = taskTime.initiatedAt;
     response.updatedAt = taskTime.updatedAt;
     response.timeSpent = taskTime.timeSpent;
+    response.id = taskTime.id;
+    response.taskId = taskTime.task.id;
 
     return response;
   }
