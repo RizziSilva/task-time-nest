@@ -12,7 +12,7 @@ import { AuthMapper, UserMapper } from '@mappers';
 import { UserValidator } from '@validators';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { BEARER_TOKEN_TYPE, COOKIES_KEYS } from '@constants';
+import { BEARER_TOKEN_TYPE, COOKIES_KEYS, HEADERS_KEYS } from '@constants';
 
 describe('AuthService Tests', () => {
   let authService: AuthService;
@@ -154,7 +154,7 @@ describe('AuthService Tests', () => {
   describe('refresh Tests', () => {
     it('Refresh token without refresh token throw error', async () => {
       const response: Response = {} as Response;
-      const request: Request = { cookies: {} } as Request;
+      const request: Request = { cookies: {}, headers: {} } as Request;
 
       jest.spyOn(userService, 'findOneById');
 
@@ -168,6 +168,7 @@ describe('AuthService Tests', () => {
       const response: Response = {} as Response;
       const request: Request = {
         cookies: { [COOKIES_KEYS.REFRESH]: `${BEARER_TOKEN_TYPE} cookie` },
+        headers: {},
       } as Request;
       const verifyResolvedValue: AuthLoginResponseDto = { id: 1 };
 
@@ -181,12 +182,43 @@ describe('AuthService Tests', () => {
       expect(jwtService.verifyAsync).toHaveBeenCalled();
     });
 
-    it('Refresh token with success', async () => {
+    it('Refresh token from cookies with success', async () => {
       const response: Response = {
         cookie: (name: string, val: string, options: CookieOptions) => {},
       } as Response;
       const request: Request = {
         cookies: { [COOKIES_KEYS.REFRESH]: `${BEARER_TOKEN_TYPE} cookie` },
+        headers: {},
+      } as Request;
+      const verifyResolvedValue: AuthLoginResponseDto = { id: 1 };
+      const user: User = new User();
+      const tokens: TokensDto = {
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+      };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValueOnce(verifyResolvedValue);
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(user);
+      jest.spyOn(authService, 'login').mockResolvedValueOnce(tokens);
+      jest.spyOn(response, 'cookie').mockImplementation(() => {
+        return response;
+      });
+
+      await authService.refresh(request, response);
+
+      expect(userService.findOneById).toHaveBeenCalledWith(verifyResolvedValue.id);
+      expect(authService.login).toHaveBeenCalledWith(verifyResolvedValue);
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+      expect(response.cookie).toHaveBeenCalledTimes(2);
+    });
+
+    it('Refresh token from headers with success', async () => {
+      const response: Response = {
+        cookie: (name: string, val: string, options: CookieOptions) => {},
+      } as Response;
+      const request: Request = {
+        cookies: {},
+        headers: { [HEADERS_KEYS.REFRESH]: `${BEARER_TOKEN_TYPE} cookie` },
       } as Request;
       const verifyResolvedValue: AuthLoginResponseDto = { id: 1 };
       const user: User = new User();

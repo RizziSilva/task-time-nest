@@ -7,6 +7,7 @@ import { User } from '@entities';
 import { AuthLoginResponseDto, TokensDto } from '@dtos';
 import {
   COOKIES_KEYS,
+  HEADERS_KEYS,
   REFRESH_TOKEN_EXPIRATION_TIME,
   UNAUTHORIZED_ACTION,
   UNAUTHORIZED_LOGIN,
@@ -78,9 +79,9 @@ export class AuthService {
     return response;
   }
 
-  async refresh(request: Request, response: Response): Promise<void> {
+  async refresh(request: Request, response: Response): Promise<TokensDto> {
     try {
-      const requestToken: string = request.cookies[COOKIES_KEYS.REFRESH];
+      const requestToken: string = this.getRefreshTokenFromRequest(request);
 
       if (!requestToken) throw new UnauthorizedActionException(UNAUTHORIZED_ACTION);
 
@@ -103,6 +104,8 @@ export class AuthService {
 
       response.cookie(COOKIES_KEYS.ACCESS, tokens.access_token, cookieOptions);
       response.cookie(COOKIES_KEYS.REFRESH, tokens.refresh_token, cookieOptions);
+
+      return tokens;
     } catch (error) {
       throw new UnauthorizedActionException(error);
     }
@@ -110,5 +113,16 @@ export class AuthService {
 
   private async comparePasswords(userPassword: string, requestPassword: string): Promise<boolean> {
     return await compare(requestPassword, userPassword);
+  }
+
+  private getRefreshTokenFromRequest(request: Request): string {
+    const requestRefreshToken = request.headers[HEADERS_KEYS.REFRESH];
+
+    if (requestRefreshToken)
+      return Array.isArray(requestRefreshToken) ? requestRefreshToken[0] : requestRefreshToken;
+
+    const requestToken: string = request.cookies[COOKIES_KEYS.REFRESH];
+
+    return requestToken;
   }
 }

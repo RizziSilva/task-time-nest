@@ -11,6 +11,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
+    "types": ["jest"],
     "baseUrl": "./",
     "paths": {
       "@modules": ["./src/modules"],
