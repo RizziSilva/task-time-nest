@@ -21,7 +21,7 @@ export class AuthController {
   async refresh(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<void> {
+  ): Promise<TokensDto> {
     return await this.authService.refresh(request, response);
   }
 }
